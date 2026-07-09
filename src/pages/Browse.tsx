@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
@@ -163,13 +163,6 @@ const CLIENT_TESTIMONIALS = [
   }
 ];
 
-const FEATURED_DETAILS = [
-  { name: 'CloudTalk Integration', product: 'Telephony Platform', category: 'Sales Intelligence', rating: 4.8, reviews: 34 },
-  { name: 'Shopify Sync Pro', product: 'Commerce Platform', category: 'Order Automation', rating: 4.6, reviews: 21 },
-  { name: 'Google Address AutoComplete', product: 'Maps API', category: 'Data Validation', rating: 4.9, reviews: 58 },
-  { name: 'Lead Mapper AI', product: 'CRM Platform', category: 'Sales Intelligence', rating: 5.0, reviews: 12 },
-];
-
 function getToolIcon(iconName: string): LucideIcon {
   return iconMap[iconName] || Brain;
 }
@@ -218,19 +211,6 @@ function Browse() {
 
   // Carousel & Notification states
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-
-  // Featured Integrations detail card — auto-rotates through the catalog,
-  // pausing while the banner is hovered.
-  const [activeFeatured, setActiveFeatured] = useState(0);
-  const [featuredPaused, setFeaturedPaused] = useState(false);
-
-  useEffect(() => {
-    if (featuredPaused) return;
-    const id = setInterval(() => {
-      setActiveFeatured((i) => (i + 1) % FEATURED_DETAILS.length);
-    }, 4000);
-    return () => clearInterval(id);
-  }, [featuredPaused]);
 
   // Side Filter states
   const [selectedPricing, setSelectedPricing] = useState<string[]>([]);
@@ -528,11 +508,7 @@ function Browse() {
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
       >
-        <div
-          className="zoho-banner"
-          onMouseEnter={() => setFeaturedPaused(true)}
-          onMouseLeave={() => setFeaturedPaused(false)}
-        >
+        <div className="zoho-banner">
           <h2 className="zoho-banner__title">Featured Integrations</h2>
           <div className="zoho-banner__grid">
             <div className="zoho-banner__item">
@@ -568,59 +544,33 @@ function Browse() {
               </div>
             </div>
 
-            {/* Hover/Featured Highlight Overlay Detail Card — auto-flips
-                through FEATURED_DETAILS every 4s, pausing on hover. */}
-            <div className="zoho-banner__detail-slot">
-              <AnimatePresence mode="wait">
-                {(() => {
-                  const detail = FEATURED_DETAILS[activeFeatured];
-                  return (
-                    <motion.div
-                      key={detail.name}
-                      className="zoho-banner__detail-card"
-                      initial={{ opacity: 0, rotateY: -90 }}
-                      animate={{ opacity: 1, rotateY: 0 }}
-                      exit={{ opacity: 0, rotateY: 90 }}
-                      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                    >
-                      <h3 className="zoho-banner__detail-name">{detail.name}</h3>
-                      <div className="zoho-banner__detail-meta">
-                        <div className="zoho-banner__detail-row">
-                          <span className="zoho-banner__detail-label">Product</span>
-                          <span className="zoho-banner__detail-val">{detail.product}</span>
-                        </div>
-                        <div className="zoho-banner__detail-row">
-                          <span className="zoho-banner__detail-label">Category</span>
-                          <span className="zoho-banner__detail-val">{detail.category}</span>
-                        </div>
-                        <div className="zoho-banner__detail-row">
-                          <span className="zoho-banner__detail-label">Rating</span>
-                          <span className="zoho-banner__detail-val" style={{ color: 'var(--warning)', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                            {Array.from({ length: 5 }, (_, i) => (
-                              <Star key={i} size={12} fill={i < Math.round(detail.rating) ? 'currentColor' : 'transparent'} stroke="currentColor" />
-                            ))}
-                            <span style={{ color: 'var(--text-muted)', fontSize: '11px', marginLeft: '4px' }}>({detail.reviews})</span>
-                          </span>
-                        </div>
-                      </div>
-                      <div className="zoho-banner__detail-actions">
-                        <button type="button" className="zoho-banner__btn zoho-banner__btn--video" onClick={(e) => handleWatchVideo(detail.name, e)}>Watch video</button>
-                        <button type="button" className="zoho-banner__btn zoho-banner__btn--install" onClick={(e) => handleInstall(detail.name, e)}>Install</button>
-                      </div>
-                    </motion.div>
-                  );
-                })()}
-              </AnimatePresence>
-              <div className="zoho-banner__detail-dots">
-                {FEATURED_DETAILS.map((d, i) => (
-                  <button
-                    key={d.name}
-                    type="button"
-                    className={`zoho-banner__detail-dot ${i === activeFeatured ? 'zoho-banner__detail-dot--active' : ''}`}
-                    onClick={() => setActiveFeatured(i)}
-                    aria-label={`Show ${d.name}`}
-                  />
-                ))}
+            {/* Hover/Featured Highlight Overlay Detail Card */}
+            <div className="zoho-banner__detail-card">
+              <h3 className="zoho-banner__detail-name">Lead Mapper AI</h3>
+              <div className="zoho-banner__detail-meta">
+                <div className="zoho-banner__detail-row">
+                  <span className="zoho-banner__detail-label">Product</span>
+                  <span className="zoho-banner__detail-val">CRM Platform</span>
+                </div>
+                <div className="zoho-banner__detail-row">
+                  <span className="zoho-banner__detail-label">Category</span>
+                  <span className="zoho-banner__detail-val">Sales Intelligence</span>
+                </div>
+                <div className="zoho-banner__detail-row">
+                  <span className="zoho-banner__detail-label">Rating</span>
+                  <span className="zoho-banner__detail-val" style={{ color: 'var(--warning)', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                    <Star size={12} fill="currentColor" />
+                    <Star size={12} fill="currentColor" />
+                    <Star size={12} fill="currentColor" />
+                    <Star size={12} fill="currentColor" />
+                    <Star size={12} fill="currentColor" />
+                    <span style={{ color: 'var(--text-muted)', fontSize: '11px', marginLeft: '4px' }}>(12)</span>
+                  </span>
+                </div>
+              </div>
+              <div className="zoho-banner__detail-actions">
+                <button type="button" className="zoho-banner__btn zoho-banner__btn--video" onClick={(e) => handleWatchVideo('Lead Mapper AI', e)}>Watch video</button>
+                <button type="button" className="zoho-banner__btn zoho-banner__btn--install" onClick={(e) => handleInstall('Lead Mapper AI', e)}>Install</button>
               </div>
             </div>
           </div>
@@ -638,67 +588,27 @@ function Browse() {
         viewport={{ once: true, margin: "-100px" }}
       >
         <h2 className="section-title">Editor's Picks</h2>
-        <p className="section-subtitle">Hover a card to flip it for rating, tags, and quick actions.</p>
         <div className="editors-grid">
           {filteredTools.slice(0, 4).map((tool) => {
             const ToolIcon = getToolIcon(tool.icon);
             return (
-              <GlassCard key={`editor-${tool.id}`} className="editor-card" onClick={() => navigate(`/tool/${tool.id}`)}>
-                <div className="editor-card__flip-outer">
-                  <div className="editor-card__flip-inner">
-                    {/* Front face */}
-                    <div className="editor-card__face">
-                      <div className="editor-card__header">
-                        <span className="editor-card__play"><Play size={10} fill="currentColor"/> Demo</span>
-                        <div className="editor-card__icon" style={{ background: getIconBg(tool.category), color: getIconColor(tool.category) }}>
-                          <ToolIcon size={20} />
-                        </div>
-                        <div>
-                          <h4 className="editor-card__name">{tool.name}</h4>
-                          <p className="editor-card__company">{tool.company}</p>
-                        </div>
-                      </div>
-                      <p className="editor-card__desc">{tool.description}</p>
-                      <div className="editor-card__actions">
-                        <span className="editor-card__price">{formatPrice(tool).text}</span>
-                        <span className="editor-card__hint">Hover to flip</span>
-                      </div>
-                    </div>
-
-                    {/* Back face */}
-                    <div className="editor-card__face editor-card__face--back">
-                      <div className="editor-card__icon" style={{ background: getIconBg(tool.category), color: getIconColor(tool.category), alignSelf: 'center' }}>
-                        <ToolIcon size={20} />
-                      </div>
-                      <h4 className="editor-card__back-name">{tool.name}</h4>
-                      <div className="editor-card__back-rating">
-                        {Array.from({ length: 5 }, (_, i) => (
-                          <Star key={i} size={13} fill={i < Math.round(tool.rating) ? 'var(--warning)' : 'transparent'} stroke="var(--warning)" />
-                        ))}
-                        <span>{tool.rating.toFixed(1)} ({tool.reviewCount.toLocaleString()})</span>
-                      </div>
-                      <div className="editor-card__back-tags">
-                        {tool.tags.slice(0, 3).map((tag) => (
-                          <span key={tag} className="editor-card__back-tag">{tag}</span>
-                        ))}
-                      </div>
-                      <div className="editor-card__back-actions">
-                        <button type="button" className="editor-card__btn-install" onClick={(e) => handleInstall(tool.name, e)}>
-                          <Download size={12} /> Install
-                        </button>
-                        <button
-                          type="button"
-                          className="editor-card__btn-view"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/tool/${tool.id}`);
-                          }}
-                        >
-                          View Details
-                        </button>
-                      </div>
-                    </div>
+              <GlassCard key={`editor-${tool.id}`} hover className="editor-card" onClick={() => navigate(`/tool/${tool.id}`)}>
+                <div className="editor-card__header">
+                  <span className="editor-card__play"><Play size={10} fill="currentColor"/> Demo</span>
+                  <div className="editor-card__icon" style={{ background: getIconBg(tool.category), color: getIconColor(tool.category) }}>
+                    <ToolIcon size={20} />
                   </div>
+                  <div>
+                    <h4 className="editor-card__name">{tool.name}</h4>
+                    <p className="editor-card__company">{tool.company}</p>
+                  </div>
+                </div>
+                <p className="editor-card__desc">{tool.description}</p>
+                <div className="editor-card__actions">
+                  <span className="editor-card__price">{formatPrice(tool).text}</span>
+                  <button type="button" className="editor-card__btn-install" onClick={(e) => handleInstall(tool.name, e)}>
+                    <Download size={12} /> Install
+                  </button>
                 </div>
               </GlassCard>
             );
