@@ -1,0 +1,375 @@
+/* ============================================================
+   YAKKAY AI Line Marketplace — Enterprise Design System
+   Azure Marketplace / Databricks Unity Catalog inspired.
+   No rainbow colors, no flashy gradients — single-hue brand blue
+   plus neutral grays and restrained semantic colors only.
+   ============================================================ */
+
+/* ----- Design Tokens: Enterprise Color Charter ----- */
+:root {
+  /* Brand */
+  --brand-blue: #0f6cbd;
+  --brand-blue-dk: #0c5a9e;
+  --brand-blue-lt: #ebf3fb;
+
+  /* Neutral scale */
+  --neutral-50: #f9fafb;
+  --neutral-100: #f3f4f6;
+  --neutral-200: #e5e7eb;
+  --neutral-300: #d1d5db;
+  --neutral-500: #6b7280;
+  --neutral-700: #374151;
+  --neutral-900: #111827;
+
+  /* Surfaces */
+  --surface-white: #ffffff;
+  --surface-card: #ffffff;
+  --border-subtle: #e5e7eb;
+
+  /* Text */
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  --text-accent: #0f6cbd;
+
+  /* Semantic */
+  --success: #16a34a;
+  --warning: #d97706;
+  --error: #dc2626;
+  --info: #0891b2;
+
+  /* ----- Backward-compatible aliases used across existing components ----- */
+  --bg-primary: var(--neutral-50);
+  --bg-secondary: var(--surface-white);
+  --bg-tertiary: var(--neutral-100);
+  --bg-card: var(--surface-card);
+  --bg-glass: rgba(255, 255, 255, 0.85);
+  --bg-hover: var(--brand-blue-lt);
+
+  --accent-primary: var(--brand-blue);
+  --accent-secondary: var(--info);
+  --accent-tertiary: var(--warning);
+  --accent-success: var(--success);
+  --accent-danger: var(--error);
+  --accent-warning: var(--warning);
+
+  /* Single-hue only — no multi-color "flashy" gradients */
+  --gradient-primary: linear-gradient(135deg, var(--brand-blue), var(--brand-blue-dk));
+  --gradient-card: linear-gradient(135deg, rgba(15, 108, 189, 0.04), rgba(15, 108, 189, 0.01));
+  --gradient-glow: radial-gradient(circle at 50% 0%, rgba(15, 108, 189, 0.06), transparent 60%);
+
+  --border-primary: var(--border-subtle);
+  --border-accent: rgba(15, 108, 189, 0.35);
+
+  /* Soft neutral shadows — enterprise elevation, not heavy drop shadows */
+  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(17, 24, 39, 0.06), 0 2px 4px -1px rgba(17, 24, 39, 0.04);
+  --shadow-lg: 0 10px 24px -4px rgba(17, 24, 39, 0.08), 0 4px 8px -2px rgba(17, 24, 39, 0.04);
+  --shadow-glow: 0 0 24px rgba(15, 108, 189, 0.1);
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 72px;
+  --topbar-height: 64px;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Inter Display', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+}
+
+/* ----- Dark Theme (inverted neutral scale) ----- */
+[data-theme='dark'] {
+  --brand-blue: #3b9eeb;
+  --brand-blue-dk: #62b3f0;
+  --brand-blue-lt: rgba(15, 108, 189, 0.14);
+
+  --neutral-50: #111827;
+  --neutral-100: #161f33;
+  --neutral-200: #232d42;
+  --neutral-300: #374151;
+  --neutral-500: #9ca3af;
+  --neutral-700: #d1d5db;
+  --neutral-900: #f9fafb;
+
+  --surface-white: #0b0f19;
+  --surface-card: #111827;
+  --border-subtle: rgba(255, 255, 255, 0.09);
+
+  --text-primary: #f3f4f6;
+  --text-secondary: #b0b8c4;
+  --text-muted: #6b7280;
+  --text-accent: #62b3f0;
+
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #f87171;
+  --info: #22d3ee;
+
+  --bg-primary: var(--neutral-50);
+  --bg-secondary: var(--surface-card);
+  --bg-tertiary: var(--neutral-100);
+  --bg-card: var(--surface-card);
+  --bg-glass: rgba(17, 24, 39, 0.75);
+  --bg-hover: var(--brand-blue-lt);
+
+  --accent-primary: var(--brand-blue);
+  --accent-secondary: var(--info);
+  --accent-tertiary: var(--warning);
+  --accent-success: var(--success);
+  --accent-danger: var(--error);
+  --accent-warning: var(--warning);
+
+  --gradient-primary: linear-gradient(135deg, var(--brand-blue), var(--brand-blue-dk));
+  --gradient-card: linear-gradient(135deg, rgba(59, 158, 235, 0.08), rgba(59, 158, 235, 0.02));
+  --gradient-glow: radial-gradient(circle at 50% 0%, rgba(59, 158, 235, 0.12), transparent 60%);
+
+  --border-primary: var(--border-subtle);
+  --border-accent: rgba(59, 158, 235, 0.4);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 10px 32px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 24px rgba(59, 158, 235, 0.16);
+}
+
+/* Legacy alias some earlier components still reference explicitly */
+[data-theme='light'] {
+  color-scheme: light;
+}
+
+/* ----- Reset ----- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ----- Body ----- */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ----- Root Layout ----- */
+#root {
+  min-height: 100vh;
+  display: flex;
+}
+
+/* ----- Scrollbar (Webkit) ----- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--neutral-300);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-blue);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--neutral-300) var(--bg-secondary);
+}
+
+/* ----- Typography ----- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.25;
+}
+
+h1 { font-size: 2.5rem; font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 2rem; font-weight: 600; letter-spacing: -0.015em; }
+h3 { font-size: 1.5rem; font-weight: 600; }
+h4 { font-size: 1.25rem; font-weight: 600; }
+h5 { font-size: 1.125rem; font-weight: 500; }
+h6 { font-size: 1rem; font-weight: 500; }
+
+a {
+  color: var(--text-accent);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--brand-blue-dk);
+}
+
+p {
+  margin: 0;
+}
+
+/* ----- Selection ----- */
+::selection {
+  background: rgba(15, 108, 189, 0.18);
+  color: var(--text-primary);
+}
+
+/* ----- Keyframe Animations ----- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(15, 108, 189, 0.12);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(15, 108, 189, 0.22);
+  }
+}
+
+/* ----- Utility Classes ----- */
+.glass {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-primary);
+}
+
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ----- Enterprise Component Base Utilities ----- */
+.enterprise-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.enterprise-btn--primary {
+  background: var(--brand-blue);
+  color: #ffffff;
+}
+
+.enterprise-btn--primary:hover {
+  background: var(--brand-blue-dk);
+}
+
+.enterprise-btn--secondary {
+  background: var(--surface-white);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+
+.enterprise-btn--secondary:hover {
+  background: var(--neutral-100);
+  border-color: var(--neutral-300);
+}
+
+.enterprise-btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.enterprise-btn--ghost:hover {
+  background: var(--bg-hover);
+  color: var(--brand-blue);
+}
+
+.enterprise-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.enterprise-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.enterprise-badge--info { background: var(--brand-blue-lt); color: var(--brand-blue); }
+.enterprise-badge--success { background: rgba(22, 163, 74, 0.1); color: var(--success); }
+.enterprise-badge--warning { background: rgba(217, 119, 6, 0.1); color: var(--warning); }
+.enterprise-badge--error { background: rgba(220, 38, 38, 0.1); color: var(--error); }

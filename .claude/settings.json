@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --version)",
+      "Bash(npx oxlint *)",
+      "Bash(npx vite *)"
+    ]
+  }
+}

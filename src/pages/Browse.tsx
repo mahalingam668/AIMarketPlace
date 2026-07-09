@@ -1,0 +1,1315 @@
+import React, { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+import {
+  Star,
+  SearchX,
+  Brain,
+  Image,
+  Code,
+  BarChart3,
+  Mic,
+  Video,
+  FileText,
+  Search,
+  Bot,
+  Sparkles,
+  Shield,
+  Database,
+  Globe,
+  MessageSquare,
+  Palette,
+  Layers,
+  Zap,
+  Music,
+  PieChart,
+  Play,
+  Download,
+  Quote,
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  X,
+  Filter,
+  Grid3x3,
+  List as ListIcon,
+  Bookmark,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import GlassCard from '../components/ui/GlassCard';
+import Badge from '../components/ui/Badge';
+import SearchInput from '../components/ui/SearchInput';
+import CategoryChip from '../components/ui/CategoryChip';
+import { useAppDispatch, useAppSelector } from '../store';
+import { setSearch, toggleCategory, resetFilters, toggleFavorite } from '../store/slices/toolsSlice';
+import {
+  setViewMode,
+  toggleIndustry,
+  toggleRegion,
+  toggleCloud,
+  toggleVendor,
+  setPage,
+  resetMarketplaceFilters,
+} from '../store/slices/marketplaceSlice';
+import type { AITool, ToolCategory } from '../types';
+import './Browse.css';
+
+const iconMap: Record<string, LucideIcon> = {
+  Brain,
+  Image,
+  Code,
+  BarChart3,
+  Mic,
+  Video,
+  FileText,
+  Search,
+  Bot,
+  Sparkles,
+  Shield,
+  Database,
+  Globe,
+  MessageSquare,
+  Palette,
+  Layers,
+  Zap,
+  Music,
+  PieChart,
+};
+
+const CATEGORY_COLORS: Record<string, string> = {
+  'Language Models': '#8b5cf6',
+  'Image Generation': '#ec4899',
+  'Code Assistant': '#06b6d4',
+  'Data Analytics': '#f59e0b',
+  'Voice & Audio': '#10b981',
+  'Video Generation': '#f43f5e',
+  'Document AI': '#6366f1',
+  'Search & Research': '#0ea5e9',
+};
+
+const BADGE_MAP: Record<string, 'new' | 'featured' | 'popular' | 'beta' | 'enterprise'> = {
+  New: 'new',
+  Featured: 'featured',
+  Popular: 'popular',
+  Beta: 'beta',
+  Enterprise: 'enterprise',
+};
+
+const ALL_CATEGORIES: ToolCategory[] = [
+  'Language Models',
+  'Image Generation',
+  'Code Assistant',
+  'Data Analytics',
+  'Voice & Audio',
+  'Video Generation',
+  'Document AI',
+  'Search & Research',
+];
+
+const ALL_INDUSTRIES = [
+  'Financial Services',
+  'Healthcare & Life Sciences',
+  'Technology',
+  'Retail & Commerce',
+  'Public Sector',
+  'Higher Education',
+];
+
+const ALL_REGIONS = ['North America', 'Europe', 'Asia Pacific', 'Middle East', 'Latin America'];
+
+const ALL_CLOUDS = ['Azure', 'AWS', 'GCP'];
+
+const MOST_USED_TAGS = [
+  { name: 'Sales & Marketing', count: 675 },
+  { name: 'Marketing', count: 434 },
+  { name: 'Telephony', count: 241 },
+  { name: 'Productivity', count: 175 },
+  { name: 'Zoho CRM', count: 99 },
+  { name: 'Customer Service', count: 86 },
+  { name: 'SMS', count: 83 },
+  { name: 'Finance', count: 69 },
+  { name: 'Business', count: 67 },
+  { name: 'CRM', count: 66 },
+  { name: 'VoIP', count: 63 },
+  { name: 'Bulk SMS', count: 54 },
+  { name: 'Automation', count: 49 },
+  { name: 'Collaboration', count: 46 },
+  { name: 'Click to Call', count: 44 },
+  { name: 'PBX', count: 38 },
+  { name: 'WhatsApp', count: 34 },
+  { name: 'Analytics', count: 33 },
+  { name: 'IT and Administration', count: 32 },
+  { name: 'Leads', count: 31 },
+];
+
+const CLIENT_TESTIMONIALS = [
+  {
+    logo: 'UBS',
+    quote: "NexusAI is the crucial process automation component that acts as the glue holding together our entire financial intelligence solution. We were able to count on NexusAI's model capabilities to scale transaction workloads by 400% with absolute accuracy.",
+    author: 'Thierry Schafflützel, IT Project Manager, UBS'
+  },
+  {
+    logo: 'Siemens',
+    quote: "Deploying Pixel Class creative tools across our industrial design pipelines reduced raw CAD rendering cycles from hours to seconds. Our designers are focused on innovating rather than rendering.",
+    author: 'Dr. Elena Rostova, VP of Industrial Design, Siemens'
+  },
+  {
+    logo: 'Microsoft',
+    quote: "The seamless integration of Nexus API Class models into our cloud instances allowed us to deliver state-of-the-art multi-modal LLM tasks with consistent sub-80ms latencies and zero data-loss.",
+    author: 'Satya Nadella, Enterprise Cloud Architect'
+  }
+];
+
+const FEATURED_DETAILS = [
+  { name: 'CloudTalk Integration', product: 'Telephony Platform', category: 'Sales Intelligence', rating: 4.8, reviews: 34 },
+  { name: 'Shopify Sync Pro', product: 'Commerce Platform', category: 'Order Automation', rating: 4.6, reviews: 21 },
+  { name: 'Google Address AutoComplete', product: 'Maps API', category: 'Data Validation', rating: 4.9, reviews: 58 },
+  { name: 'Lead Mapper AI', product: 'CRM Platform', category: 'Sales Intelligence', rating: 5.0, reviews: 12 },
+];
+
+function getToolIcon(iconName: string): LucideIcon {
+  return iconMap[iconName] || Brain;
+}
+
+function getIconBg(category: string): string {
+  const color = CATEGORY_COLORS[category] || '#8b5cf6';
+  return `${color}18`;
+}
+
+function getIconColor(category: string): string {
+  return CATEGORY_COLORS[category] || '#8b5cf6';
+}
+
+function formatPrice(tool: AITool): { text: string; isFree: boolean } {
+  if (!tool.pricing || tool.pricing.length === 0) return { text: 'Free', isFree: true };
+  const freePlan = tool.pricing.find((p) => p.price === 0);
+  if (freePlan && tool.pricing.length === 1) return { text: 'Free', isFree: true };
+  const paidPlan = tool.pricing.find((p) => p.price > 0);
+  if (freePlan && paidPlan) return { text: `From $${paidPlan.price}/mo`, isFree: false };
+  if (paidPlan) return { text: `$${paidPlan.price}/mo`, isFree: false };
+  return { text: 'Free', isFree: true };
+}
+
+const sectionVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+};
+
+function Browse() {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const filteredTools = useAppSelector((state) => state.tools.filteredTools);
+  const { search, categories } = useAppSelector((state) => state.tools.filters);
+  const favorites = useAppSelector((state) => state.tools.favorites);
+  const {
+    viewMode,
+    industry: selectedIndustry,
+    region: selectedRegion,
+    cloud: selectedCloud,
+    vendor: selectedVendor,
+    page,
+    pageSize,
+  } = useAppSelector((state) => state.marketplace);
+  const allTools = useAppSelector((state) => state.tools.tools);
+  const allVendors = useMemo(() => Array.from(new Set(allTools.map((t) => t.vendor))).sort(), [allTools]);
+
+  // Carousel & Notification states
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+
+  // Featured Integrations detail card — auto-rotates through the catalog,
+  // pausing while the banner is hovered.
+  const [activeFeatured, setActiveFeatured] = useState(0);
+  const [featuredPaused, setFeaturedPaused] = useState(false);
+
+  useEffect(() => {
+    if (featuredPaused) return;
+    const id = setInterval(() => {
+      setActiveFeatured((i) => (i + 1) % FEATURED_DETAILS.length);
+    }, 4000);
+    return () => clearInterval(id);
+  }, [featuredPaused]);
+
+  // Side Filter states
+  const [selectedPricing, setSelectedPricing] = useState<string[]>([]);
+  const [selectedSLA, setSelectedSLA] = useState<string[]>([]);
+  const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
+  const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
+  const [filterSearch, setFilterSearch] = useState('');
+
+  // Dropdown filter state (top filter dropdowns)
+  const [billingFilter, setBillingFilter] = useState('all');
+  const [slaFilter, setSlaFilter] = useState('all');
+
+  // Sidebar sections collapsed state
+  const [collapsedPricing, setCollapsedPricing] = useState(false);
+  const [collapsedSLA, setCollapsedSLA] = useState(false);
+  const [collapsedIntegrations, setCollapsedIntegrations] = useState(false);
+  const [collapsedRatings, setCollapsedRatings] = useState(false);
+  const [collapsedIndustry, setCollapsedIndustry] = useState(false);
+  const [collapsedRegion, setCollapsedRegion] = useState(true);
+  const [collapsedCloud, setCollapsedCloud] = useState(true);
+  const [collapsedVendor, setCollapsedVendor] = useState(true);
+
+  const handleInstall = (toolName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast.promise(
+      new Promise((resolve) => setTimeout(resolve, 1500)),
+      {
+        loading: `Connecting model repository for ${toolName}...`,
+        success: `Successfully integrated ${toolName} with your workspace!`,
+        error: `Could not connect to ${toolName}.`,
+      }
+    );
+  };
+
+  const handleWatchVideo = (toolName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast.success(`Launching video walkthrough for ${toolName}`);
+  };
+
+  // Clear all side & top filters
+  const handleClearAllFilters = () => {
+    setSelectedPricing([]);
+    setSelectedSLA([]);
+    setSelectedIntegrations([]);
+    setSelectedRatings([]);
+    setBillingFilter('all');
+    setSlaFilter('all');
+    setFilterSearch('');
+    dispatch(resetFilters());
+    dispatch(resetMarketplaceFilters());
+  };
+
+  // Deep client-side filtering based on advanced filter states
+  const fullyFilteredTools = useMemo(() => {
+    return filteredTools.filter(tool => {
+      // 1. Pricing Model filter
+      if (selectedPricing.length > 0) {
+        const matches = selectedPricing.some(type => {
+          if (type === 'Free') {
+            return tool.pricing.some(p => p.price === 0);
+          }
+          if (type === 'Pay-As-You-Go') {
+            return tool.pricing.some(p => p.period === 'per-call');
+          }
+          if (type === 'Subscription') {
+            return tool.pricing.some(p => p.period === 'monthly' || p.period === 'yearly');
+          }
+          return false;
+        });
+        if (!matches) return false;
+      }
+
+      // 2. SLA Uptime Uptime
+      if (selectedSLA.length > 0) {
+        const matches = selectedSLA.some(sla => {
+          if (sla === '99.9%+') return tool.uptime >= 99.9;
+          if (sla === '99.0%+') return tool.uptime >= 99.0;
+          if (sla === '95.0%+') return tool.uptime >= 95.0;
+          return false;
+        });
+        if (!matches) return false;
+      }
+
+      // 3. Integrations filter
+      if (selectedIntegrations.length > 0) {
+        const matches = selectedIntegrations.every(integration => 
+          tool.integrations.some(i => i.toLowerCase() === integration.toLowerCase())
+        );
+        if (!matches) return false;
+      }
+
+      // 4. Ratings threshold filter
+      if (selectedRatings.length > 0) {
+        const matches = selectedRatings.some(ratingOpt => {
+          if (ratingOpt === '4.5+ Stars') return tool.rating >= 4.5;
+          if (ratingOpt === '4.0+ Stars') return tool.rating >= 4.0;
+          if (ratingOpt === '3.5+ Stars') return tool.rating >= 3.5;
+          return false;
+        });
+        if (!matches) return false;
+      }
+
+      // 5. Top Dropdown Billing Filter
+      if (billingFilter !== 'all') {
+        const isFree = tool.pricing.some(p => p.price === 0);
+        if (billingFilter === 'free' && !isFree) return false;
+        if (billingFilter === 'paid' && isFree && tool.pricing.length === 1) return false;
+      }
+
+      // 6. Top Dropdown SLA Filter
+      if (slaFilter !== 'all') {
+        if (slaFilter === 'critical' && tool.uptime < 99.9) return false;
+        if (slaFilter === 'standard' && tool.uptime < 99.0) return false;
+      }
+
+      // 7. Industry filter
+      if (selectedIndustry.length > 0) {
+        const matches = selectedIndustry.some((ind) => tool.industries.includes(ind));
+        if (!matches) return false;
+      }
+
+      // 8. Region filter
+      if (selectedRegion.length > 0) {
+        const matches = selectedRegion.some((r) => tool.regions.includes(r));
+        if (!matches) return false;
+      }
+
+      // 9. Cloud provider filter
+      if (selectedCloud.length > 0) {
+        const matches = selectedCloud.some((c) => tool.cloudProviders.includes(c));
+        if (!matches) return false;
+      }
+
+      // 10. Vendor filter
+      if (selectedVendor.length > 0) {
+        if (!selectedVendor.includes(tool.vendor)) return false;
+      }
+
+      return true;
+    });
+  }, [
+    filteredTools,
+    selectedPricing,
+    selectedSLA,
+    selectedIntegrations,
+    selectedRatings,
+    billingFilter,
+    slaFilter,
+    selectedIndustry,
+    selectedRegion,
+    selectedCloud,
+    selectedVendor,
+  ]);
+
+  // Pagination derived from the fully filtered result set
+  const totalPages = Math.max(1, Math.ceil(fullyFilteredTools.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedTools = useMemo(
+    () => fullyFilteredTools.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+    [fullyFilteredTools, currentPage, pageSize]
+  );
+
+  // Dynamic filter counts calculator
+  const filterCounts = useMemo(() => {
+    const counts = {
+      pricing: { Free: 0, 'Pay-As-You-Go': 0, Subscription: 0 },
+      sla: { '99.9%+': 0, '99.0%+': 0, '95.0%+': 0 },
+      integrations: { Slack: 0, Salesforce: 0, GitHub: 0, Jira: 0, HubSpot: 0 } as Record<string, number>,
+      ratings: { '4.5+ Stars': 0, '4.0+ Stars': 0, '3.5+ Stars': 0 },
+      industry: {} as Record<string, number>,
+      region: {} as Record<string, number>,
+      cloud: {} as Record<string, number>,
+      vendor: {} as Record<string, number>,
+    };
+
+    filteredTools.forEach(tool => {
+      tool.industries.forEach((ind) => { counts.industry[ind] = (counts.industry[ind] || 0) + 1; });
+      tool.regions.forEach((r) => { counts.region[r] = (counts.region[r] || 0) + 1; });
+      tool.cloudProviders.forEach((c) => { counts.cloud[c] = (counts.cloud[c] || 0) + 1; });
+      counts.vendor[tool.vendor] = (counts.vendor[tool.vendor] || 0) + 1;
+
+      // Pricing
+      if (tool.pricing.some(p => p.price === 0)) counts.pricing.Free++;
+      if (tool.pricing.some(p => p.period === 'per-call')) counts.pricing['Pay-As-You-Go']++;
+      if (tool.pricing.some(p => p.period === 'monthly' || p.period === 'yearly')) counts.pricing.Subscription++;
+
+      // SLA
+      if (tool.uptime >= 99.9) counts.sla['99.9%+']++;
+      if (tool.uptime >= 99.0) counts.sla['99.0%+']++;
+      if (tool.uptime >= 95.0) counts.sla['95.0%+']++;
+
+      // Integrations
+      tool.integrations.forEach(intg => {
+        const key = Object.keys(counts.integrations).find(k => k.toLowerCase() === intg.toLowerCase());
+        if (key) counts.integrations[key]++;
+      });
+
+      // Ratings
+      if (tool.rating >= 4.5) counts.ratings['4.5+ Stars']++;
+      if (tool.rating >= 4.0) counts.ratings['4.0+ Stars']++;
+      if (tool.rating >= 3.5) counts.ratings['3.5+ Stars']++;
+    });
+
+    return counts;
+  }, [filteredTools]);
+
+  // Check if any filters are active
+  const hasActiveFilters = useMemo(() => {
+    return (
+      selectedPricing.length > 0 ||
+      selectedSLA.length > 0 ||
+      selectedIntegrations.length > 0 ||
+      selectedRatings.length > 0 ||
+      billingFilter !== 'all' ||
+      slaFilter !== 'all' ||
+      search !== '' ||
+      categories.length > 0 ||
+      selectedIndustry.length > 0 ||
+      selectedRegion.length > 0 ||
+      selectedCloud.length > 0 ||
+      selectedVendor.length > 0
+    );
+  }, [
+    selectedPricing,
+    selectedSLA,
+    selectedIntegrations,
+    selectedRatings,
+    billingFilter,
+    slaFilter,
+    search,
+    categories,
+    selectedIndustry,
+    selectedRegion,
+    selectedCloud,
+    selectedVendor,
+  ]);
+
+  return (
+    <div className="browse">
+      
+      {/* ========================================================
+          DIVISION 1: HERO HEADER & FILTERS BAR
+          ======================================================== */}
+      <motion.div
+        className="browse__div-1"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="browse__header">
+          <h1>Explore AI Model Marketplace</h1>
+          <div className="browse__header-meta">
+            <p>Discover, preview, and deploy high-performance models instantly</p>
+            <span className="browse__count">{fullyFilteredTools.length} models available</span>
+          </div>
+        </div>
+
+        <div className="browse__filters">
+          <div className="browse__filters-categories">
+            <CategoryChip
+              label="All Categories"
+              active={categories.length === 0}
+              onClick={() => {
+                dispatch(resetFilters());
+              }}
+            />
+            {ALL_CATEGORIES.map((cat) => (
+              <CategoryChip
+                key={cat}
+                label={cat}
+                active={categories.includes(cat)}
+                onClick={() => dispatch(toggleCategory(cat))}
+                color={CATEGORY_COLORS[cat]}
+              />
+            ))}
+          </div>
+          <div className="browse__filters-right">
+            <SearchInput
+              value={search}
+              onChange={(val) => dispatch(setSearch(val))}
+              placeholder="Search tools..."
+              shortcut="/"
+            />
+          </div>
+        </div>
+      </motion.div>
+
+      {/* ========================================================
+          DIVISION 2: ZOHO FEATURED EXTENSIONS SLIDER BANNER
+          ======================================================== */}
+      <motion.div
+        className="browse__div-2"
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+      >
+        <div
+          className="zoho-banner"
+          onMouseEnter={() => setFeaturedPaused(true)}
+          onMouseLeave={() => setFeaturedPaused(false)}
+        >
+          <h2 className="zoho-banner__title">Featured Integrations</h2>
+          <div className="zoho-banner__grid">
+            <div className="zoho-banner__item">
+              <span className="zoho-banner__play-tag"><Play size={10} fill="currentColor"/> Play</span>
+              <div className="zoho-banner__item-content">
+                <div className="zoho-banner__item-logo zoho-banner__logo--blue">C</div>
+                <div>
+                  <h4 className="zoho-banner__item-name">CloudTalk Integration</h4>
+                  <p className="zoho-banner__item-desc">Al-powered calling. Boost answer rates with predictive dialing.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="zoho-banner__item">
+              <span className="zoho-banner__play-tag"><Play size={10} fill="currentColor"/> Play</span>
+              <div className="zoho-banner__item-content">
+                <div className="zoho-banner__item-logo zoho-banner__logo--green">S</div>
+                <div>
+                  <h4 className="zoho-banner__item-name">Shopify Sync Pro</h4>
+                  <p className="zoho-banner__item-desc">Automate customer and order management seamlessly.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="zoho-banner__item">
+              <span className="zoho-banner__play-tag"><Play size={10} fill="currentColor"/> Play</span>
+              <div className="zoho-banner__item-content">
+                <div className="zoho-banner__item-logo zoho-banner__logo--red">G</div>
+                <div>
+                  <h4 className="zoho-banner__item-name">Google Address AutoComplete</h4>
+                  <p className="zoho-banner__item-desc">Leverage the power of Google Maps to validate coordinates.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Hover/Featured Highlight Overlay Detail Card — auto-flips
+                through FEATURED_DETAILS every 4s, pausing on hover. */}
+            <div className="zoho-banner__detail-slot">
+              <AnimatePresence mode="wait">
+                {(() => {
+                  const detail = FEATURED_DETAILS[activeFeatured];
+                  return (
+                    <motion.div
+                      key={detail.name}
+                      className="zoho-banner__detail-card"
+                      initial={{ opacity: 0, rotateY: -90 }}
+                      animate={{ opacity: 1, rotateY: 0 }}
+                      exit={{ opacity: 0, rotateY: 90 }}
+                      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <h3 className="zoho-banner__detail-name">{detail.name}</h3>
+                      <div className="zoho-banner__detail-meta">
+                        <div className="zoho-banner__detail-row">
+                          <span className="zoho-banner__detail-label">Product</span>
+                          <span className="zoho-banner__detail-val">{detail.product}</span>
+                        </div>
+                        <div className="zoho-banner__detail-row">
+                          <span className="zoho-banner__detail-label">Category</span>
+                          <span className="zoho-banner__detail-val">{detail.category}</span>
+                        </div>
+                        <div className="zoho-banner__detail-row">
+                          <span className="zoho-banner__detail-label">Rating</span>
+                          <span className="zoho-banner__detail-val" style={{ color: 'var(--warning)', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                            {Array.from({ length: 5 }, (_, i) => (
+                              <Star key={i} size={12} fill={i < Math.round(detail.rating) ? 'currentColor' : 'transparent'} stroke="currentColor" />
+                            ))}
+                            <span style={{ color: 'var(--text-muted)', fontSize: '11px', marginLeft: '4px' }}>({detail.reviews})</span>
+                          </span>
+                        </div>
+                      </div>
+                      <div className="zoho-banner__detail-actions">
+                        <button type="button" className="zoho-banner__btn zoho-banner__btn--video" onClick={(e) => handleWatchVideo(detail.name, e)}>Watch video</button>
+                        <button type="button" className="zoho-banner__btn zoho-banner__btn--install" onClick={(e) => handleInstall(detail.name, e)}>Install</button>
+                      </div>
+                    </motion.div>
+                  );
+                })()}
+              </AnimatePresence>
+              <div className="zoho-banner__detail-dots">
+                {FEATURED_DETAILS.map((d, i) => (
+                  <button
+                    key={d.name}
+                    type="button"
+                    className={`zoho-banner__detail-dot ${i === activeFeatured ? 'zoho-banner__detail-dot--active' : ''}`}
+                    onClick={() => setActiveFeatured(i)}
+                    aria-label={`Show ${d.name}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* ========================================================
+          DIVISION 3: EDITOR'S PICK ROW (HIGH CONVERTING PRODUCTS)
+          ======================================================== */}
+      <motion.div
+        className="browse__div-3"
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+      >
+        <h2 className="section-title">Editor's Picks</h2>
+        <p className="section-subtitle">Hover a card to flip it for rating, tags, and quick actions.</p>
+        <div className="editors-grid">
+          {filteredTools.slice(0, 4).map((tool) => {
+            const ToolIcon = getToolIcon(tool.icon);
+            return (
+              <GlassCard key={`editor-${tool.id}`} className="editor-card" onClick={() => navigate(`/tool/${tool.id}`)}>
+                <div className="editor-card__flip-outer">
+                  <div className="editor-card__flip-inner">
+                    {/* Front face */}
+                    <div className="editor-card__face">
+                      <div className="editor-card__header">
+                        <span className="editor-card__play"><Play size={10} fill="currentColor"/> Demo</span>
+                        <div className="editor-card__icon" style={{ background: getIconBg(tool.category), color: getIconColor(tool.category) }}>
+                          <ToolIcon size={20} />
+                        </div>
+                        <div>
+                          <h4 className="editor-card__name">{tool.name}</h4>
+                          <p className="editor-card__company">{tool.company}</p>
+                        </div>
+                      </div>
+                      <p className="editor-card__desc">{tool.description}</p>
+                      <div className="editor-card__actions">
+                        <span className="editor-card__price">{formatPrice(tool).text}</span>
+                        <span className="editor-card__hint">Hover to flip</span>
+                      </div>
+                    </div>
+
+                    {/* Back face */}
+                    <div className="editor-card__face editor-card__face--back">
+                      <div className="editor-card__icon" style={{ background: getIconBg(tool.category), color: getIconColor(tool.category), alignSelf: 'center' }}>
+                        <ToolIcon size={20} />
+                      </div>
+                      <h4 className="editor-card__back-name">{tool.name}</h4>
+                      <div className="editor-card__back-rating">
+                        {Array.from({ length: 5 }, (_, i) => (
+                          <Star key={i} size={13} fill={i < Math.round(tool.rating) ? 'var(--warning)' : 'transparent'} stroke="var(--warning)" />
+                        ))}
+                        <span>{tool.rating.toFixed(1)} ({tool.reviewCount.toLocaleString()})</span>
+                      </div>
+                      <div className="editor-card__back-tags">
+                        {tool.tags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="editor-card__back-tag">{tag}</span>
+                        ))}
+                      </div>
+                      <div className="editor-card__back-actions">
+                        <button type="button" className="editor-card__btn-install" onClick={(e) => handleInstall(tool.name, e)}>
+                          <Download size={12} /> Install
+                        </button>
+                        <button
+                          type="button"
+                          className="editor-card__btn-view"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/tool/${tool.id}`);
+                          }}
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </GlassCard>
+            );
+          })}
+        </div>
+      </motion.div>
+
+      {/* ========================================================
+          DIVISION 4: ENTERPRISE TESTIMONIAL CAROUSEL (REDWOOD STYLE)
+          ======================================================== */}
+      <motion.div
+        className="browse__div-4"
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+      >
+        <div className="redwood-testimonial">
+          <div className="redwood-testimonial__logo">
+            <h3 className="redwood-testimonial__brand">
+              <Quote size={28} className="redwood-testimonial__quote-icon" />
+              {CLIENT_TESTIMONIALS[activeTestimonial].logo}
+            </h3>
+          </div>
+          <div className="redwood-testimonial__body">
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={activeTestimonial}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="redwood-testimonial__quote"
+              >
+                "{CLIENT_TESTIMONIALS[activeTestimonial].quote}"
+              </motion.p>
+            </AnimatePresence>
+            <p className="redwood-testimonial__author">{CLIENT_TESTIMONIALS[activeTestimonial].author}</p>
+          </div>
+          <div className="redwood-testimonial__dots">
+            {CLIENT_TESTIMONIALS.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className={`redwood-testimonial__dot ${idx === activeTestimonial ? 'redwood-testimonial__dot--active' : ''}`}
+                onClick={() => setActiveTestimonial(idx)}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* ========================================================
+          DIVISION 5: ZOHO STYLE MOST USED TAGS DIRECTORY
+          ======================================================== */}
+      <motion.div
+        className="browse__div-5"
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+      >
+        <h2 className="section-title">Most Used Tags</h2>
+        <div className="zoho-tags-board">
+          {MOST_USED_TAGS.map((tag) => (
+            <button
+              key={tag.name}
+              type="button"
+              className="zoho-tag-pill"
+              onClick={() => dispatch(setSearch(tag.name))}
+            >
+              {tag.name} <span className="zoho-tag-count">({tag.count})</span>
+            </button>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* ========================================================
+          DIVISION 6: MICROSOFT APPSOURCE COLLAPSIBLE SIDEBAR & CATALOG GRID
+          ======================================================== */}
+      <motion.div
+        className="browse__div-6"
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+      >
+        <div className="appsource-layout">
+          
+          {/* Left Sidebar Filter Panel */}
+          <aside className="appsource-sidebar">
+            <div className="appsource-sidebar__header">
+              <div className="appsource-sidebar__title">
+                <Filter size={16} />
+                <span>Filters</span>
+              </div>
+              {hasActiveFilters && (
+                <button type="button" className="appsource-sidebar__clear" onClick={handleClearAllFilters}>
+                  Clear all
+                </button>
+              )}
+            </div>
+
+            {/* Sidebar Filter Search */}
+            <div className="appsource-sidebar__search">
+              <Search size={14} className="appsource-sidebar__search-icon" />
+              <input
+                type="text"
+                placeholder="Search filters..."
+                value={filterSearch}
+                onChange={(e) => setFilterSearch(e.target.value)}
+              />
+              {filterSearch && <X size={14} className="appsource-sidebar__search-clear" onClick={() => setFilterSearch('')} />}
+            </div>
+
+            {/* Filter Section 1: Pricing Model */}
+            <div className="appsource-sidebar__section">
+              <button type="button" className="appsource-sidebar__section-trigger" onClick={() => setCollapsedPricing(!collapsedPricing)}>
+                <span>Pricing Model</span>
+                {collapsedPricing ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+              </button>
+              
+              {!collapsedPricing && (
+                <div className="appsource-sidebar__section-content">
+                  {['Free', 'Pay-As-You-Go', 'Subscription'].map(type => {
+                    const count = filterCounts.pricing[type as keyof typeof filterCounts.pricing] || 0;
+                    if (filterSearch && !type.toLowerCase().includes(filterSearch.toLowerCase())) return null;
+                    return (
+                      <label key={type} className="appsource-sidebar__checkbox-row">
+                        <input
+                          type="checkbox"
+                          checked={selectedPricing.includes(type)}
+                          onChange={() => setSelectedPricing(prev => prev.includes(type) ? prev.filter(x => x !== type) : [...prev, type])}
+                        />
+                        <span className="checkbox-custom" />
+                        <span className="checkbox-label">{type}</span>
+                        <span className="checkbox-count">({count})</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Filter Section 2: SLA Guarantee */}
+            <div className="appsource-sidebar__section">
+              <button type="button" className="appsource-sidebar__section-trigger" onClick={() => setCollapsedSLA(!collapsedSLA)}>
+                <span>Uptime SLA</span>
+                {collapsedSLA ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+              </button>
+              
+              {!collapsedSLA && (
+                <div className="appsource-sidebar__section-content">
+                  {['99.9%+', '99.0%+', '95.0%+'].map(sla => {
+                    const count = filterCounts.sla[sla as keyof typeof filterCounts.sla] || 0;
+                    if (filterSearch && !sla.toLowerCase().includes(filterSearch.toLowerCase())) return null;
+                    return (
+                      <label key={sla} className="appsource-sidebar__checkbox-row">
+                        <input
+                          type="checkbox"
+                          checked={selectedSLA.includes(sla)}
+                          onChange={() => setSelectedSLA(prev => prev.includes(sla) ? prev.filter(x => x !== sla) : [...prev, sla])}
+                        />
+                        <span className="checkbox-custom" />
+                        <span className="checkbox-label">{sla}</span>
+                        <span className="checkbox-count">({count})</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Filter Section 3: Enterprise Integrations */}
+            <div className="appsource-sidebar__section">
+              <button type="button" className="appsource-sidebar__section-trigger" onClick={() => setCollapsedIntegrations(!collapsedIntegrations)}>
+                <span>Integrations</span>
+                {collapsedIntegrations ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+              </button>
+              
+              {!collapsedIntegrations && (
+                <div className="appsource-sidebar__section-content">
+                  {['Slack', 'Salesforce', 'GitHub', 'Jira', 'HubSpot'].map(intg => {
+                    const count = filterCounts.integrations[intg] || 0;
+                    if (filterSearch && !intg.toLowerCase().includes(filterSearch.toLowerCase())) return null;
+                    return (
+                      <label key={intg} className="appsource-sidebar__checkbox-row">
+                        <input
+                          type="checkbox"
+                          checked={selectedIntegrations.includes(intg)}
+                          onChange={() => setSelectedIntegrations(prev => prev.includes(intg) ? prev.filter(x => x !== intg) : [...prev, intg])}
+                        />
+                        <span className="checkbox-custom" />
+                        <span className="checkbox-label">{intg}</span>
+                        <span className="checkbox-count">({count})</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Filter Section 4: Rating Threshold */}
+            <div className="appsource-sidebar__section">
+              <button type="button" className="appsource-sidebar__section-trigger" onClick={() => setCollapsedRatings(!collapsedRatings)}>
+                <span>Rating</span>
+                {collapsedRatings ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+              </button>
+              
+              {!collapsedRatings && (
+                <div className="appsource-sidebar__section-content">
+                  {['4.5+ Stars', '4.0+ Stars', '3.5+ Stars'].map(ratingOpt => {
+                    const count = filterCounts.ratings[ratingOpt as keyof typeof filterCounts.ratings] || 0;
+                    if (filterSearch && !ratingOpt.toLowerCase().includes(filterSearch.toLowerCase())) return null;
+                    return (
+                      <label key={ratingOpt} className="appsource-sidebar__checkbox-row">
+                        <input
+                          type="checkbox"
+                          checked={selectedRatings.includes(ratingOpt)}
+                          onChange={() => setSelectedRatings(prev => prev.includes(ratingOpt) ? prev.filter(x => x !== ratingOpt) : [...prev, ratingOpt])}
+                        />
+                        <span className="checkbox-custom" />
+                        <span className="checkbox-label">{ratingOpt}</span>
+                        <span className="checkbox-count">({count})</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Filter Section 5: Industry */}
+            <div className="appsource-sidebar__section">
+              <button type="button" className="appsource-sidebar__section-trigger" onClick={() => setCollapsedIndustry(!collapsedIndustry)}>
+                <span>Industry</span>
+                {collapsedIndustry ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+              </button>
+
+              {!collapsedIndustry && (
+                <div className="appsource-sidebar__section-content">
+                  {ALL_INDUSTRIES.map(ind => {
+                    const count = filterCounts.industry[ind] || 0;
+                    if (filterSearch && !ind.toLowerCase().includes(filterSearch.toLowerCase())) return null;
+                    return (
+                      <label key={ind} className="appsource-sidebar__checkbox-row">
+                        <input
+                          type="checkbox"
+                          checked={selectedIndustry.includes(ind)}
+                          onChange={() => dispatch(toggleIndustry(ind))}
+                        />
+                        <span className="checkbox-custom" />
+                        <span className="checkbox-label">{ind}</span>
+                        <span className="checkbox-count">({count})</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Filter Section 6: Region */}
+            <div className="appsource-sidebar__section">
+              <button type="button" className="appsource-sidebar__section-trigger" onClick={() => setCollapsedRegion(!collapsedRegion)}>
+                <span>Region</span>
+                {collapsedRegion ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+              </button>
+
+              {!collapsedRegion && (
+                <div className="appsource-sidebar__section-content">
+                  {ALL_REGIONS.map(r => {
+                    const count = filterCounts.region[r] || 0;
+                    if (filterSearch && !r.toLowerCase().includes(filterSearch.toLowerCase())) return null;
+                    return (
+                      <label key={r} className="appsource-sidebar__checkbox-row">
+                        <input
+                          type="checkbox"
+                          checked={selectedRegion.includes(r)}
+                          onChange={() => dispatch(toggleRegion(r))}
+                        />
+                        <span className="checkbox-custom" />
+                        <span className="checkbox-label">{r}</span>
+                        <span className="checkbox-count">({count})</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Filter Section 7: Cloud Provider */}
+            <div className="appsource-sidebar__section">
+              <button type="button" className="appsource-sidebar__section-trigger" onClick={() => setCollapsedCloud(!collapsedCloud)}>
+                <span>Cloud Platform</span>
+                {collapsedCloud ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+              </button>
+
+              {!collapsedCloud && (
+                <div className="appsource-sidebar__section-content">
+                  {ALL_CLOUDS.map(c => {
+                    const count = filterCounts.cloud[c] || 0;
+                    if (filterSearch && !c.toLowerCase().includes(filterSearch.toLowerCase())) return null;
+                    return (
+                      <label key={c} className="appsource-sidebar__checkbox-row">
+                        <input
+                          type="checkbox"
+                          checked={selectedCloud.includes(c)}
+                          onChange={() => dispatch(toggleCloud(c))}
+                        />
+                        <span className="checkbox-custom" />
+                        <span className="checkbox-label">{c}</span>
+                        <span className="checkbox-count">({count})</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Filter Section 8: Vendor */}
+            <div className="appsource-sidebar__section">
+              <button type="button" className="appsource-sidebar__section-trigger" onClick={() => setCollapsedVendor(!collapsedVendor)}>
+                <span>Vendor</span>
+                {collapsedVendor ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+              </button>
+
+              {!collapsedVendor && (
+                <div className="appsource-sidebar__section-content">
+                  {allVendors.map(v => {
+                    const count = filterCounts.vendor[v] || 0;
+                    if (filterSearch && !v.toLowerCase().includes(filterSearch.toLowerCase())) return null;
+                    return (
+                      <label key={v} className="appsource-sidebar__checkbox-row">
+                        <input
+                          type="checkbox"
+                          checked={selectedVendor.includes(v)}
+                          onChange={() => dispatch(toggleVendor(v))}
+                        />
+                        <span className="checkbox-custom" />
+                        <span className="checkbox-label">{v}</span>
+                        <span className="checkbox-count">({count})</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </aside>
+
+          {/* Right Main Grid & Dropdowns View */}
+          <div className="appsource-main">
+            
+            {/* Top Dropdowns and Action bar */}
+            <div className="appsource-topbar">
+              <div className="appsource-topbar__left-heading">
+                <span className="appsource-topbar__title">AI Extensions results</span>
+                <span className="appsource-topbar__count">Showing {fullyFilteredTools.length} of {filteredTools.length} entries</span>
+              </div>
+
+              <div className="appsource-topbar__filters">
+                <select
+                  value={billingFilter}
+                  onChange={(e) => setBillingFilter(e.target.value)}
+                  className="appsource-topbar__select"
+                >
+                  <option value="all">Billing Type: All</option>
+                  <option value="free">Free Plans Only</option>
+                  <option value="paid">Commercial Plans</option>
+                </select>
+
+                <select
+                  value={slaFilter}
+                  onChange={(e) => setSlaFilter(e.target.value)}
+                  className="appsource-topbar__select"
+                >
+                  <option value="all">SLA Tier: All</option>
+                  <option value="critical">Critical (99.9%+)</option>
+                  <option value="standard">Standard (99.0%+)</option>
+                </select>
+
+                <div className="appsource-topbar__view-toggle">
+                  <button
+                    type="button"
+                    className={viewMode === 'grid' ? 'appsource-topbar__view-btn appsource-topbar__view-btn--active' : 'appsource-topbar__view-btn'}
+                    onClick={() => dispatch(setViewMode('grid'))}
+                    aria-label="Grid view"
+                  >
+                    <Grid3x3 size={15} />
+                  </button>
+                  <button
+                    type="button"
+                    className={viewMode === 'list' ? 'appsource-topbar__view-btn appsource-topbar__view-btn--active' : 'appsource-topbar__view-btn'}
+                    onClick={() => dispatch(setViewMode('list'))}
+                    aria-label="List view"
+                  >
+                    <ListIcon size={15} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Active Filters Pills Container */}
+            {hasActiveFilters && (
+              <div className="appsource-active-tags">
+                {categories.map(cat => (
+                  <span key={cat} className="active-tag">
+                    Category: {cat}
+                    <button type="button" onClick={() => dispatch(toggleCategory(cat))}><X size={10} /></button>
+                  </span>
+                ))}
+                {search && (
+                  <span className="active-tag">
+                    Search: "{search}"
+                    <button type="button" onClick={() => dispatch(setSearch(''))}><X size={10} /></button>
+                  </span>
+                )}
+                {selectedPricing.map(type => (
+                  <span key={type} className="active-tag">
+                    Pricing: {type}
+                    <button type="button" onClick={() => setSelectedPricing(prev => prev.filter(x => x !== type))}><X size={10} /></button>
+                  </span>
+                ))}
+                {selectedSLA.map(sla => (
+                  <span key={sla} className="active-tag">
+                    SLA: {sla}
+                    <button type="button" onClick={() => setSelectedSLA(prev => prev.filter(x => x !== sla))}><X size={10} /></button>
+                  </span>
+                ))}
+                {selectedIntegrations.map(intg => (
+                  <span key={intg} className="active-tag">
+                    Integration: {intg}
+                    <button type="button" onClick={() => setSelectedIntegrations(prev => prev.filter(x => x !== intg))}><X size={10} /></button>
+                  </span>
+                ))}
+                {selectedRatings.map(ratingOpt => (
+                  <span key={ratingOpt} className="active-tag">
+                    Rating: {ratingOpt}
+                    <button type="button" onClick={() => setSelectedRatings(prev => prev.filter(x => x !== ratingOpt))}><X size={10} /></button>
+                  </span>
+                ))}
+                {billingFilter !== 'all' && (
+                  <span className="active-tag">
+                    Billing: {billingFilter === 'free' ? 'Free' : 'Commercial'}
+                    <button type="button" onClick={() => setBillingFilter('all')}><X size={10} /></button>
+                  </span>
+                )}
+                {slaFilter !== 'all' && (
+                  <span className="active-tag">
+                    SLA Guarantee: {slaFilter === 'critical' ? 'Critical' : 'Standard'}
+                    <button type="button" onClick={() => setSlaFilter('all')}><X size={10} /></button>
+                  </span>
+                )}
+                {selectedIndustry.map(ind => (
+                  <span key={ind} className="active-tag">
+                    Industry: {ind}
+                    <button type="button" onClick={() => dispatch(toggleIndustry(ind))}><X size={10} /></button>
+                  </span>
+                ))}
+                {selectedRegion.map(r => (
+                  <span key={r} className="active-tag">
+                    Region: {r}
+                    <button type="button" onClick={() => dispatch(toggleRegion(r))}><X size={10} /></button>
+                  </span>
+                ))}
+                {selectedCloud.map(c => (
+                  <span key={c} className="active-tag">
+                    Cloud: {c}
+                    <button type="button" onClick={() => dispatch(toggleCloud(c))}><X size={10} /></button>
+                  </span>
+                ))}
+                {selectedVendor.map(v => (
+                  <span key={v} className="active-tag">
+                    Vendor: {v}
+                    <button type="button" onClick={() => dispatch(toggleVendor(v))}><X size={10} /></button>
+                  </span>
+                ))}
+                <button type="button" className="active-tag-clear" onClick={handleClearAllFilters}>
+                  Clear all
+                </button>
+              </div>
+            )}
+
+            {/* Extended Grid Layout */}
+            {fullyFilteredTools.length > 0 ? (
+              <div className={viewMode === 'list' ? 'appsource-grid appsource-grid--list' : 'appsource-grid'}>
+                {paginatedTools.map((tool) => {
+                  const ToolIcon = getToolIcon(tool.icon);
+                  const price = formatPrice(tool);
+                  const isFavorite = favorites.includes(tool.id);
+                  return (
+                    <div key={tool.id} className="appsource-card" onClick={() => navigate(`/tool/${tool.id}`)}>
+                      <button
+                        type="button"
+                        className={`appsource-card__bookmark ${isFavorite ? 'appsource-card__bookmark--active' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          dispatch(toggleFavorite(tool.id));
+                        }}
+                        aria-label={isFavorite ? `Remove ${tool.name} from favorites` : `Save ${tool.name} to favorites`}
+                      >
+                        <Bookmark size={14} fill={isFavorite ? 'currentColor' : 'none'} />
+                      </button>
+
+                      {tool.badge && (
+                        <div className="appsource-card__badge-wrapper">
+                          <Badge variant={BADGE_MAP[tool.badge] || 'new'} size="sm">
+                            {tool.badge}
+                          </Badge>
+                        </div>
+                      )}
+
+                      <div className="appsource-card__visual">
+                        <div className="appsource-card__visual-circle" style={{ background: getIconBg(tool.category), color: getIconColor(tool.category) }}>
+                          <ToolIcon size={24} />
+                        </div>
+                      </div>
+
+                      <div className="appsource-card__info">
+                        <h3 className="appsource-card__name">{tool.name}</h3>
+                        <p className="appsource-card__publisher">{tool.company}</p>
+                        
+                        <div className="appsource-card__category-badge">
+                          <CheckCircle size={10} style={{ color: 'var(--accent-success)' }} />
+                          <span>{tool.category}</span>
+                        </div>
+
+                        <p className="appsource-card__desc">{tool.description}</p>
+
+                        <div className="appsource-card__footer">
+                          <div className="appsource-card__footer-info">
+                            <div className="appsource-card__rating">
+                              <Star size={12} fill="#f59e0b" stroke="#f59e0b" />
+                              <span className="appsource-card__rating-val">{tool.rating.toFixed(1)}</span>
+                              <span className="appsource-card__reviews-count">({tool.reviewCount} ratings)</span>
+                            </div>
+                            
+                            <div className="appsource-card__price-row">
+                              <span className={`appsource-card__price ${price.isFree ? 'appsource-card__price--free' : ''}`}>
+                                {price.text}
+                              </span>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            className="appsource-card__btn-install"
+                            onClick={(e) => handleInstall(tool.name, e)}
+                          >
+                            Get it now
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="browse__empty">
+                <div className="browse__empty-icon">
+                  <SearchX size={28} />
+                </div>
+                <h3>No extensions match the selected filters</h3>
+                <p>Try resetting the side checkboxes or top filters to discover more items.</p>
+                <button
+                  type="button"
+                  className="browse__reset-btn"
+                  onClick={handleClearAllFilters}
+                >
+                  Reset All Filters
+                </button>
+              </div>
+            )}
+
+            {fullyFilteredTools.length > pageSize && (
+              <div className="appsource-pagination">
+                <button
+                  type="button"
+                  className="appsource-pagination__btn"
+                  disabled={currentPage === 1}
+                  onClick={() => dispatch(setPage(currentPage - 1))}
+                >
+                  <ChevronLeft size={14} /> Prev
+                </button>
+                <div className="appsource-pagination__pages">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      className={`appsource-pagination__page ${p === currentPage ? 'appsource-pagination__page--active' : ''}`}
+                      onClick={() => dispatch(setPage(p))}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  className="appsource-pagination__btn"
+                  disabled={currentPage === totalPages}
+                  onClick={() => dispatch(setPage(currentPage + 1))}
+                >
+                  Next <ChevronRight size={14} />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </motion.div>
+
+    </div>
+  );
+}
+
+export default Browse;

@@ -1,0 +1,172 @@
+.governance {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 32px 64px;
+}
+
+.governance__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--brand-blue);
+}
+
+.governance__header h1 {
+  font-size: 2rem;
+  margin: 6px 0 8px 0;
+}
+
+.governance__header p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  max-width: 640px;
+}
+
+/* Summary cards */
+.governance__summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.governance__summary-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  color: var(--brand-blue);
+}
+
+.governance__summary-card--success { color: var(--success); }
+.governance__summary-card--warning { color: var(--warning); }
+.governance__summary-card--error { color: var(--error); }
+
+.governance__summary-value {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.governance__summary-label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.governance__section h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+/* Compliance table */
+.governance__table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.governance__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.governance__table th {
+  text-align: left;
+  padding: 12px 16px;
+  background: var(--neutral-100);
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+
+.governance__table td {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.governance__table-name {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.governance__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.governance__request-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--surface-white);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.governance__request-btn:hover {
+  border-color: var(--brand-blue);
+  color: var(--brand-blue);
+}
+
+/* Access control policy cards */
+.governance__policy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.governance__policy-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.governance__policy-card h4 {
+  font-size: 14px;
+  margin: 0 0 8px 0;
+}
+
+.governance__policy-card p {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .governance__summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
