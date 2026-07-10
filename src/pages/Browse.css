@@ -87,6 +87,151 @@
 }
 
 /* ========================================================
+   Division 1B: Browse by Categories Directory Menu
+   ======================================================== */
+.browse__div-1b {
+  display: block;
+}
+
+.category-menu {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.category-menu__header {
+  margin-bottom: 4px;
+}
+
+.category-menu__title {
+  margin-bottom: 16px;
+}
+
+.category-menu__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.category-menu__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.category-menu__item:hover {
+  border-color: var(--border-accent);
+  color: var(--text-primary);
+  background: var(--bg-hover);
+  transform: translateY(-1px);
+}
+
+.category-menu__item:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.category-menu__item--active {
+  border-color: var(--border-accent);
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--text-accent);
+}
+
+.category-menu__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--text-accent);
+}
+
+.category-menu__item--active .category-menu__icon {
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.category-menu__label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.category-menu__count {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-primary);
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+
+.category-menu__item--active .category-menu__count {
+  color: var(--text-accent);
+  background: rgba(139, 92, 246, 0.15);
+}
+
+.category-menu__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  background: none;
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-accent);
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.category-menu__toggle:hover {
+  text-decoration: underline;
+}
+
+.category-menu__toggle:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .category-menu__grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-menu__item {
+    transition: none;
+  }
+  .category-menu__item:hover {
+    transform: none;
+  }
+}
+
+/* ========================================================
    Division 2: Zoho Featured Banner
    ======================================================== */
 .zoho-banner {
@@ -302,6 +447,12 @@
   align-items: center;
   gap: 12px;
   position: relative;
+  padding-right: 56px;
+}
+
+.editor-card__header > div:last-child {
+  flex: 1;
+  min-width: 0;
 }
 
 .editor-card__play {
@@ -314,6 +465,7 @@
   padding: 2px 8px;
   border-radius: 20px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .editor-card__icon {
@@ -332,12 +484,18 @@
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .editor-card__company {
   font-size: 11px;
   color: var(--text-muted);
   margin: 2px 0 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .editor-card__desc {
@@ -353,6 +511,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   margin-top: auto;
   border-top: 1px solid var(--border-primary);
   padding-top: 12px;
@@ -362,14 +521,18 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--accent-success);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .editor-card__btn-install {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  white-space: nowrap;
   font-family: var(--font-sans);
   background: var(--brand-blue);
   border: none;

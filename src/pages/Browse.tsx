@@ -37,6 +37,31 @@ import {
   Bookmark,
   ChevronLeft,
   ChevronRight,
+  Activity,
+  Link2,
+  Users,
+  ShoppingCart,
+  Scale,
+  Headphones,
+  Terminal,
+  GitBranch,
+  DollarSign,
+  MapPin,
+  UserCheck,
+  Fingerprint,
+  Server,
+  Plug,
+  Cpu,
+  Settings,
+  Megaphone,
+  Film,
+  ShieldCheck,
+  ArrowRightLeft,
+  Glasses,
+  Truck,
+  CheckSquare,
+  TrendingUp,
+  ListTodo,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import GlassCard from '../components/ui/GlassCard';
@@ -77,6 +102,31 @@ const iconMap: Record<string, LucideIcon> = {
   Zap,
   Music,
   PieChart,
+  Activity,
+  Link2,
+  Users,
+  ShoppingCart,
+  Scale,
+  Headphones,
+  Terminal,
+  GitBranch,
+  DollarSign,
+  MapPin,
+  UserCheck,
+  Fingerprint,
+  Server,
+  Plug,
+  Cpu,
+  Settings,
+  Megaphone,
+  Film,
+  ShieldCheck,
+  ArrowRightLeft,
+  Glasses,
+  Truck,
+  CheckSquare,
+  TrendingUp,
+  ListTodo,
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -88,6 +138,37 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Video Generation': '#f43f5e',
   'Document AI': '#6366f1',
   'Search & Research': '#0ea5e9',
+  'AI Apps and Agents': '#8b5cf6',
+  'Analytics': '#f59e0b',
+  'Blockchain': '#f97316',
+  'Collaboration': '#22c55e',
+  'Commerce': '#ec4899',
+  'Compliance & Legal': '#64748b',
+  'Customer Service': '#06b6d4',
+  'Databases': '#6366f1',
+  'Developer Tools': '#0ea5e9',
+  'DevOps': '#14b8a6',
+  'Finance': '#10b981',
+  'Geolocation': '#ef4444',
+  'Human Resources': '#a855f7',
+  'Identity': '#7c3aed',
+  'Infrastructure Services': '#475569',
+  'Integration': '#3b82f6',
+  'Internet of Things': '#059669',
+  'IT & Management Tools': '#78716c',
+  'Machine Learning': '#8b5cf6',
+  'Marketing': '#db2777',
+  'Media': '#e11d48',
+  'Microsoft Entra ID': '#0078d4',
+  'Migration': '#f59e0b',
+  'Mixed Reality': '#9333ea',
+  'Monitoring & Diagnostics': '#f43f5e',
+  'Operations & Supply Chain': '#ca8a04',
+  'Productivity': '#16a34a',
+  'Sales': '#2563eb',
+  'Security': '#dc2626',
+  'Task & Project Management': '#7c3aed',
+  'Web': '#0891b2',
 };
 
 const BADGE_MAP: Record<string, 'new' | 'featured' | 'popular' | 'beta' | 'enterprise'> = {
@@ -97,6 +178,42 @@ const BADGE_MAP: Record<string, 'new' | 'featured' | 'popular' | 'beta' | 'enter
   Beta: 'beta',
   Enterprise: 'enterprise',
 };
+
+const CATEGORY_MENU: { name: string; icon: LucideIcon }[] = [
+  { name: 'AI Apps and Agents', icon: Bot },
+  { name: 'Analytics', icon: Activity },
+  { name: 'Blockchain', icon: Link2 },
+  { name: 'Collaboration', icon: Users },
+  { name: 'Commerce', icon: ShoppingCart },
+  { name: 'Compliance & Legal', icon: Scale },
+  { name: 'Customer Service', icon: Headphones },
+  { name: 'Databases', icon: Database },
+  { name: 'Developer Tools', icon: Terminal },
+  { name: 'DevOps', icon: GitBranch },
+  { name: 'Finance', icon: DollarSign },
+  { name: 'Geolocation', icon: MapPin },
+  { name: 'Human Resources', icon: UserCheck },
+  { name: 'Identity', icon: Fingerprint },
+  { name: 'Infrastructure Services', icon: Server },
+  { name: 'Integration', icon: Plug },
+  { name: 'Internet of Things', icon: Cpu },
+  { name: 'IT & Management Tools', icon: Settings },
+  { name: 'Machine Learning', icon: Brain },
+  { name: 'Marketing', icon: Megaphone },
+  { name: 'Media', icon: Film },
+  { name: 'Microsoft Entra ID', icon: ShieldCheck },
+  { name: 'Migration', icon: ArrowRightLeft },
+  { name: 'Mixed Reality', icon: Glasses },
+  { name: 'Monitoring & Diagnostics', icon: Activity },
+  { name: 'Operations & Supply Chain', icon: Truck },
+  { name: 'Productivity', icon: CheckSquare },
+  { name: 'Sales', icon: TrendingUp },
+  { name: 'Security', icon: Shield },
+  { name: 'Task & Project Management', icon: ListTodo },
+  { name: 'Web', icon: Globe },
+];
+
+const CATEGORY_MENU_COLLAPSED_COUNT = 12;
 
 const ALL_CATEGORIES: ToolCategory[] = [
   'Language Models',
@@ -208,9 +325,19 @@ function Browse() {
   } = useAppSelector((state) => state.marketplace);
   const allTools = useAppSelector((state) => state.tools.tools);
   const allVendors = useMemo(() => Array.from(new Set(allTools.map((t) => t.vendor))).sort(), [allTools]);
+  const categoryMenuCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    allTools.forEach((tool) => {
+      counts[tool.category] = (counts[tool.category] || 0) + 1;
+    });
+    return counts;
+  }, [allTools]);
 
   // Carousel & Notification states
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+
+  // Browse-by-category menu state
+  const [categoriesExpanded, setCategoriesExpanded] = useState(false);
 
   // Side Filter states
   const [selectedPricing, setSelectedPricing] = useState<string[]>([]);
@@ -248,6 +375,12 @@ function Browse() {
   const handleWatchVideo = (toolName: string, e: React.MouseEvent) => {
     e.stopPropagation();
     toast.success(`Launching video walkthrough for ${toolName}`);
+  };
+
+  const handleCategoryMenuSelect = (categoryName: string) => {
+    dispatch(resetFilters());
+    dispatch(toggleCategory(categoryName));
+    document.getElementById('appsource-catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   // Clear all side & top filters
@@ -499,6 +632,59 @@ function Browse() {
       </motion.div>
 
       {/* ========================================================
+          DIVISION 1B: BROWSE BY CATEGORIES DIRECTORY MENU
+          ======================================================== */}
+      <motion.nav
+        className="browse__div-1b"
+        aria-label="Browse by categories"
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+      >
+        <div className="category-menu">
+          <div className="category-menu__header">
+            <h2 className="section-title category-menu__title">Browse by Categories</h2>
+          </div>
+          <ul className="category-menu__grid" role="list">
+            {(categoriesExpanded ? CATEGORY_MENU : CATEGORY_MENU.slice(0, CATEGORY_MENU_COLLAPSED_COUNT)).map((cat) => {
+              const CatIcon = cat.icon;
+              const isActive = categories.includes(cat.name);
+              const count = categoryMenuCounts[cat.name] || 0;
+              return (
+                <li key={cat.name}>
+                  <button
+                    type="button"
+                    className={`category-menu__item ${isActive ? 'category-menu__item--active' : ''}`}
+                    onClick={() => handleCategoryMenuSelect(cat.name)}
+                    aria-pressed={isActive}
+                  >
+                    <span className="category-menu__icon" aria-hidden="true">
+                      <CatIcon size={16} />
+                    </span>
+                    <span className="category-menu__label">{cat.name}</span>
+                    <span className="category-menu__count">{count}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          <button
+            type="button"
+            className="category-menu__toggle"
+            onClick={() => setCategoriesExpanded((prev) => !prev)}
+            aria-expanded={categoriesExpanded}
+          >
+            {categoriesExpanded ? (
+              <>Show fewer categories <ChevronUp size={14} /></>
+            ) : (
+              <>Show all {CATEGORY_MENU.length} categories <ChevronDown size={14} /></>
+            )}
+          </button>
+        </div>
+      </motion.nav>
+
+      {/* ========================================================
           DIVISION 2: ZOHO FEATURED EXTENSIONS SLIDER BANNER
           ======================================================== */}
       <motion.div
@@ -691,6 +877,7 @@ function Browse() {
           DIVISION 6: MICROSOFT APPSOURCE COLLAPSIBLE SIDEBAR & CATALOG GRID
           ======================================================== */}
       <motion.div
+        id="appsource-catalog"
         className="browse__div-6"
         variants={sectionVariants}
         initial="hidden"
