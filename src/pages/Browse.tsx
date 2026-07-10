@@ -62,6 +62,7 @@ import {
   CheckSquare,
   TrendingUp,
   ListTodo,
+  ArrowRight,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import GlassCard from '../components/ui/GlassCard';
@@ -69,7 +70,7 @@ import Badge from '../components/ui/Badge';
 import SearchInput from '../components/ui/SearchInput';
 import CategoryChip from '../components/ui/CategoryChip';
 import { useAppDispatch, useAppSelector } from '../store';
-import { setSearch, toggleCategory, resetFilters, toggleFavorite } from '../store/slices/toolsSlice';
+import { setSearch, toggleCategory, resetFilters, toggleFavorite, setSort } from '../store/slices/toolsSlice';
 import {
   setViewMode,
   toggleIndustry,
@@ -79,7 +80,8 @@ import {
   setPage,
   resetMarketplaceFilters,
 } from '../store/slices/marketplaceSlice';
-import type { AITool, ToolCategory } from '../types';
+import { trendingToolIds } from '../data/mockData';
+import type { AITool, FilterState, ToolCategory } from '../types';
 import './Browse.css';
 
 const iconMap: Record<string, LucideIcon> = {
@@ -303,6 +305,12 @@ function formatPrice(tool: AITool): { text: string; isFree: boolean } {
   return { text: 'Free', isFree: true };
 }
 
+function formatCompactNumber(num: number): string {
+  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`;
+  if (num >= 1_000) return `${(num / 1000).toFixed(1)}K`;
+  return `${num}`;
+}
+
 const sectionVariants = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
@@ -312,7 +320,7 @@ function Browse() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const filteredTools = useAppSelector((state) => state.tools.filteredTools);
-  const { search, categories } = useAppSelector((state) => state.tools.filters);
+  const { search, categories, sort } = useAppSelector((state) => state.tools.filters);
   const favorites = useAppSelector((state) => state.tools.favorites);
   const {
     viewMode,
@@ -332,6 +340,22 @@ function Browse() {
     });
     return counts;
   }, [allTools]);
+
+  // Trending Now — editorially ranked, always visible regardless of active filters
+  const trendingTools = useMemo(
+    () => trendingToolIds.map((id) => allTools.find((t) => t.id === id)).filter((t): t is AITool => Boolean(t)),
+    [allTools]
+  );
+
+  // Recommended For You — simple content-based match on categories the user has favorited
+  const recommendedTools = useMemo(() => {
+    if (favorites.length === 0) return [];
+    const favoriteCategories = new Set(allTools.filter((t) => favorites.includes(t.id)).map((t) => t.category));
+    return allTools
+      .filter((t) => !favorites.includes(t.id) && favoriteCategories.has(t.category))
+      .sort((a, b) => b.rating - a.rating)
+      .slice(0, 4);
+  }, [allTools, favorites]);
 
   // Carousel & Notification states
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -706,6 +730,13 @@ function Browse() {
                   <p className="zoho-banner__item-desc">Al-powered calling. Boost answer rates with predictive dialing.</p>
                 </div>
               </div>
+              <div className="zoho-banner__item-footer">
+                <span className="zoho-banner__item-price">$29/mo</span>
+                <div className="zoho-banner__item-actions">
+                  <button type="button" className="zoho-banner__btn zoho-banner__btn--video zoho-banner__btn--compact" onClick={(e) => handleWatchVideo('CloudTalk Integration', e)}>Watch Demo</button>
+                  <button type="button" className="zoho-banner__btn zoho-banner__btn--install zoho-banner__btn--compact" onClick={(e) => handleInstall('CloudTalk Integration', e)}>Install</button>
+                </div>
+              </div>
             </div>
 
             <div className="zoho-banner__item">
@@ -717,6 +748,13 @@ function Browse() {
                   <p className="zoho-banner__item-desc">Automate customer and order management seamlessly.</p>
                 </div>
               </div>
+              <div className="zoho-banner__item-footer">
+                <span className="zoho-banner__item-price">$19/mo</span>
+                <div className="zoho-banner__item-actions">
+                  <button type="button" className="zoho-banner__btn zoho-banner__btn--video zoho-banner__btn--compact" onClick={(e) => handleWatchVideo('Shopify Sync Pro', e)}>Watch Demo</button>
+                  <button type="button" className="zoho-banner__btn zoho-banner__btn--install zoho-banner__btn--compact" onClick={(e) => handleInstall('Shopify Sync Pro', e)}>Install</button>
+                </div>
+              </div>
             </div>
 
             <div className="zoho-banner__item">
@@ -726,6 +764,13 @@ function Browse() {
                 <div>
                   <h4 className="zoho-banner__item-name">Google Address AutoComplete</h4>
                   <p className="zoho-banner__item-desc">Leverage the power of Google Maps to validate coordinates.</p>
+                </div>
+              </div>
+              <div className="zoho-banner__item-footer">
+                <span className="zoho-banner__item-price">Free</span>
+                <div className="zoho-banner__item-actions">
+                  <button type="button" className="zoho-banner__btn zoho-banner__btn--video zoho-banner__btn--compact" onClick={(e) => handleWatchVideo('Google Address AutoComplete', e)}>Watch Demo</button>
+                  <button type="button" className="zoho-banner__btn zoho-banner__btn--install zoho-banner__btn--compact" onClick={(e) => handleInstall('Google Address AutoComplete', e)}>Install</button>
                 </div>
               </div>
             </div>
@@ -800,6 +845,99 @@ function Browse() {
             );
           })}
         </div>
+      </motion.div>
+
+      {/* ========================================================
+          DIVISION 3B: TRENDING NOW + PERSONALIZED RECOMMENDATIONS
+          ======================================================== */}
+      <motion.div
+        className="browse__div-3b"
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+      >
+        <div className="trend-section">
+          <div className="trend-section__header">
+            <div className="trend-section__heading">
+              <TrendingUp size={18} className="trend-section__heading-icon" />
+              <h2 className="section-title trend-section__title">Trending Now</h2>
+            </div>
+            <span className="trend-section__subtitle">Ranked by active enterprise usage this week</span>
+          </div>
+          <div className="trend-row">
+            {trendingTools.map((tool, index) => {
+              const ToolIcon = getToolIcon(tool.icon);
+              return (
+                <div
+                  key={`trend-${tool.id}`}
+                  className="trend-card"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate(`/tool/${tool.id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') navigate(`/tool/${tool.id}`);
+                  }}
+                >
+                  <span className="trend-card__rank">{index + 1}</span>
+                  <div className="trend-card__icon" style={{ background: getIconBg(tool.category), color: getIconColor(tool.category) }}>
+                    <ToolIcon size={18} />
+                  </div>
+                  <div className="trend-card__body">
+                    <h4 className="trend-card__name">{tool.name}</h4>
+                    <p className="trend-card__company">{tool.company}</p>
+                    <div className="trend-card__stats">
+                      <span><Star size={11} fill="#f59e0b" stroke="#f59e0b" /> {tool.rating.toFixed(1)}</span>
+                      <span><Users size={11} /> {formatCompactNumber(tool.activeUsers)}</span>
+                    </div>
+                  </div>
+                  <ArrowRight size={16} className="trend-card__arrow" />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {recommendedTools.length > 0 && (
+          <div className="trend-section trend-section--recommended">
+            <div className="trend-section__header">
+              <div className="trend-section__heading">
+                <Sparkles size={18} className="trend-section__heading-icon" />
+                <h2 className="section-title trend-section__title">Recommended For You</h2>
+              </div>
+              <span className="trend-section__subtitle">Matched to categories you've favorited</span>
+            </div>
+            <div className="trend-row">
+              {recommendedTools.map((tool) => {
+                const ToolIcon = getToolIcon(tool.icon);
+                return (
+                  <div
+                    key={`rec-${tool.id}`}
+                    className="trend-card trend-card--recommended"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => navigate(`/tool/${tool.id}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') navigate(`/tool/${tool.id}`);
+                    }}
+                  >
+                    <div className="trend-card__icon" style={{ background: getIconBg(tool.category), color: getIconColor(tool.category) }}>
+                      <ToolIcon size={18} />
+                    </div>
+                    <div className="trend-card__body">
+                      <h4 className="trend-card__name">{tool.name}</h4>
+                      <p className="trend-card__company">{tool.category}</p>
+                      <div className="trend-card__stats">
+                        <span><Star size={11} fill="#f59e0b" stroke="#f59e0b" /> {tool.rating.toFixed(1)}</span>
+                      </div>
+                    </div>
+                    <ArrowRight size={16} className="trend-card__arrow" />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </motion.div>
 
       {/* ========================================================
@@ -1156,6 +1294,18 @@ function Browse() {
               </div>
 
               <div className="appsource-topbar__filters">
+                <select
+                  value={sort}
+                  onChange={(e) => dispatch(setSort(e.target.value as FilterState['sort']))}
+                  className="appsource-topbar__select"
+                >
+                  <option value="popular">Sort: Most Popular</option>
+                  <option value="rating">Sort: Highest Rated</option>
+                  <option value="newest">Sort: Newest</option>
+                  <option value="price-low">Sort: Price Low to High</option>
+                  <option value="price-high">Sort: Price High to Low</option>
+                </select>
+
                 <select
                   value={billingFilter}
                   onChange={(e) => setBillingFilter(e.target.value)}

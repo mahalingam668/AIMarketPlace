@@ -112,7 +112,7 @@ function Home() {
         </motion.div>
       </section>
 
-      {/* Stats bar */}
+     {/* Stats bar */}
       <motion.section
         className="home__stats"
         variants={containerVariants}

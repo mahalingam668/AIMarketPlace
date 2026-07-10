@@ -235,7 +235,7 @@
    Division 2: Zoho Featured Banner
    ======================================================== */
 .zoho-banner {
-     background: linear-gradient(309deg, #e8e5e6, #648ec5);
+  background: var(--gradient-primary);
   border-radius: var(--radius-lg);
   padding: 32px;
   box-shadow: var(--shadow-lg);
@@ -259,14 +259,14 @@
 }
 
 .zoho-banner__item {
-  background: #ffffff;
+  background: var(--surface-white);
   border-radius: var(--radius-md);
   padding: 20px;
   position: relative;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   transition: transform var(--transition-fast);
 }
 
@@ -279,7 +279,7 @@
   top: 12px;
   left: 12px;
   font-size: 10px;
-  color: #64748b;
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -322,15 +322,37 @@
 .zoho-banner__item-name {
   font-size: 14px;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary);
   margin: 0 0 4px 0;
 }
 
 .zoho-banner__item-desc {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-muted);
   margin: 0;
   line-height: 1.4;
+}
+
+.zoho-banner__item-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-primary);
+}
+
+.zoho-banner__item-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.zoho-banner__item-actions {
+  display: flex;
+  gap: 8px;
 }
 
 /* Zoho Active Detail Info Card */
@@ -381,6 +403,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-top: auto;
 }
 
 .zoho-banner__btn {
@@ -398,10 +421,18 @@
   pointer-events: none;
 }
 
-.zoho-banner__detail-card:hover .zoho-banner__btn {
+.zoho-banner__detail-card:hover .zoho-banner__btn,
+.zoho-banner__item:hover .zoho-banner__btn {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+}
+
+.zoho-banner__btn--compact {
+  width: auto;
+  flex: 1;
+  padding: 7px 10px;
+  font-size: 11px;
 }
 
 .zoho-banner__btn--video {
@@ -547,6 +578,147 @@
 
 .editor-card__btn-install:hover {
   background: var(--brand-blue-dk);
+}
+
+/* ========================================================
+   Division 3B: Trending Now + Recommended For You
+   ======================================================== */
+.browse__div-3b {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.trend-section__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.trend-section__heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.trend-section__heading-icon {
+  color: var(--accent-primary);
+  flex-shrink: 0;
+}
+
+.trend-section__title {
+  margin: 0;
+}
+
+.trend-section__subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.trend-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.trend-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.trend-card:hover {
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+
+.trend-card:focus-visible {
+  outline: 2px solid var(--brand-blue);
+  outline-offset: 2px;
+}
+
+.trend-card:hover .trend-card__arrow {
+  transform: translateX(3px);
+  color: var(--text-accent);
+}
+
+.trend-card__rank {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.trend-card__icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trend-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.trend-card__name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trend-card__company {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 6px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trend-card__stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.trend-card__stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.trend-card__arrow {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
 }
 
 /* ========================================================
@@ -1365,7 +1537,12 @@
   color: var(--text-primary) !important;
   border-color: var(--border-accent) !important;
   transform: translateY(-2px) scale(1.04);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.08);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--brand-blue) 8%, transparent);
+}
+
+.zoho-tag-pill:focus-visible {
+  outline: 2px solid var(--brand-blue);
+  outline-offset: 2px;
 }
 
 .category-chip {
@@ -1374,7 +1551,28 @@
 
 .category-chip:hover {
   transform: scale(1.06);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.08);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--brand-blue) 8%, transparent);
+}
+
+.category-chip:focus-visible {
+  outline: 2px solid var(--brand-blue);
+  outline-offset: 2px;
+}
+
+/* Consistent keyboard focus states across Browse page controls */
+.zoho-banner__btn:focus-visible,
+.editor-card__btn-install:focus-visible,
+.appsource-topbar__view-btn:focus-visible,
+.appsource-topbar__select:focus-visible,
+.appsource-pagination__btn:focus-visible,
+.appsource-pagination__page:focus-visible,
+.appsource-card__bookmark:focus-visible,
+.appsource-sidebar__clear:focus-visible,
+.active-tag button:focus-visible,
+.active-tag-clear:focus-visible,
+.browse__reset-btn:focus-visible {
+  outline: 2px solid var(--brand-blue);
+  outline-offset: 2px;
 }
 
 /* Responsive adjustments */

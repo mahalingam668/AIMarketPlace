@@ -27,6 +27,18 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import NotFound from './pages/NotFound';
 
+import CrmProviders from './routes/CrmProviders';
+import CrmRootLayout from './routes/CrmRootLayout';
+import CrmRoute from './routes/CrmRoute';
+import CrmIndexRedirect from './routes/CrmIndexRedirect';
+import CrmDashboard from './modules/crm/dashboard/CrmDashboard';
+import ProductsPage from './modules/crm/products/ProductsPage';
+import ProductDetailsPage from './modules/crm/products/ProductDetailsPage';
+import PagesManagementPage from './modules/crm/pages/PagesManagementPage';
+import DynamicPageView from './modules/crm/pages/DynamicPageView';
+import MenuManagementPage from './modules/crm/settings/MenuManagementPage';
+import ThemeSettingsPage from './modules/crm/settings/ThemeSettingsPage';
+
 function App() {
   return (
     <Routes>
@@ -53,18 +65,49 @@ function App() {
 
       {/* Authenticated workspace shell: sidebar + topbar */}
       <Route element={<ProtectedRoute />}>
-        <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/favorites" element={<Favorites />} />
-          <Route path="/settings" element={<Settings />} />
+        {/* CrmProviders wraps AppLayout (not just /crm/*) so the Sidebar's
+            CRM nav group can read live role/menu/theme state on every
+            authenticated page, not only while inside the CRM module. */}
+        <Route element={<CrmProviders />}>
+          <Route element={<AppLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/settings" element={<Settings />} />
+
+            <Route path="/crm" element={<CrmRootLayout />}>
+              <Route index element={<CrmIndexRedirect />} />
+              <Route element={<CrmRoute permission="dashboard" />}>
+                <Route path="dashboard" element={<CrmDashboard />} />
+              </Route>
+              <Route element={<CrmRoute permission="products" />}>
+                <Route path="products" element={<ProductsPage />} />
+              </Route>
+              <Route element={<CrmRoute permission="productDetails" />}>
+                <Route path="products/details" element={<ProductDetailsPage />} />
+                <Route path="products/:id" element={<ProductDetailsPage />} />
+              </Route>
+              <Route element={<CrmRoute permission="pages" />}>
+                <Route path="pages" element={<PagesManagementPage />} />
+                <Route path="pages/view/:pageKey" element={<DynamicPageView />} />
+              </Route>
+              <Route element={<CrmRoute permission="menus" />}>
+                <Route path="menus" element={<MenuManagementPage />} />
+              </Route>
+              <Route element={<CrmRoute permission="settings" />}>
+                <Route path="settings" element={<ThemeSettingsPage />} />
+              </Route>
+            </Route>
+          </Route>
         </Route>
       </Route>
 
       {/* Admin-only workspace route */}
       <Route element={<ProtectedRoute requireRole="Admin" />}>
-        <Route element={<AppLayout />}>
-          <Route path="/admin" element={<AdminDashboard />} />
+        <Route element={<CrmProviders />}>
+          <Route element={<AppLayout />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+          </Route>
         </Route>
       </Route>
 
