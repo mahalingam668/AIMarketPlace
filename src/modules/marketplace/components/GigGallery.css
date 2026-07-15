@@ -1,0 +1,23 @@
+.gig-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.gig-gallery__tile {
+  height: 140px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gig-gallery__icon {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 640px) {
+  .gig-gallery {
+    grid-template-columns: 1fr;
+  }
+}

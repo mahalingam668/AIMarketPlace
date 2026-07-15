@@ -1,8 +1,8 @@
 .footer {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
+  background: linear-gradient(135deg, #0b1220 0%, #0f172a 60%, #16213a 100%);
+  color: #ffffff;
   padding: 48px 32px 24px 32px;
-  border-top: 1px solid var(--border-primary);
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
   font-family: var(--font-sans);
   margin-top: auto; /* Push to bottom of content view */
   box-sizing: border-box;
@@ -44,14 +44,14 @@
   font-family: var(--font-heading);
   font-size: 17px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #ffffff;
   letter-spacing: -0.01em;
 }
 
 .footer__brand-desc {
   font-size: 13px;
   line-height: 1.65;
-  color: var(--text-muted);
+  color: rgba(226, 232, 240, 0.65);
   margin: 0;
 }
 
@@ -68,8 +68,8 @@
   width: fit-content;
   font-size: 11px;
   font-weight: 600;
-  color: var(--brand-blue);
-  background: var(--brand-blue-lt);
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.14);
   padding: 5px 10px;
   border-radius: 20px;
 }
@@ -84,8 +84,8 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  border: 1px solid var(--border-primary);
-  color: var(--text-secondary);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: rgba(226, 232, 240, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,9 +93,9 @@
 }
 
 .footer__social-link:hover {
-  color: var(--brand-blue) !important;
-  border-color: var(--border-accent);
-  background: var(--bg-hover);
+  color: #60a5fa !important;
+  border-color: rgba(96, 165, 250, 0.4);
+  background: rgba(59, 130, 246, 0.14);
   transform: translateY(-2px);
 }
 
@@ -117,7 +117,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-primary);
+  color: #ffffff;
   margin: 0 0 16px 0;
 }
 
@@ -131,7 +131,7 @@
 }
 
 .footer__link {
-  color: var(--text-muted) !important;
+  color: rgba(226, 232, 240, 0.65) !important;
   font-size: 13px;
   font-weight: 400;
   line-height: 1.4;
@@ -141,14 +141,14 @@
 }
 
 .footer__link:hover {
-  color: var(--brand-blue) !important;
+  color: #60a5fa !important;
   transform: translateX(2px);
 }
 
 .footer__bottom {
   margin-top: 40px;
   padding-top: 20px;
-  border-top: 1px solid var(--border-primary);
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -159,7 +159,7 @@
 .footer__copyright,
 .footer__tagline {
   font-size: 12px;
-  color: var(--text-muted);
+  color: rgba(226, 232, 240, 0.55);
   margin: 0;
 }
 

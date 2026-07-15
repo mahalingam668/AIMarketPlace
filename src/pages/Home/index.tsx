@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
-  Brain, Image, Code, BarChart3, Mic, Video, FileText, Search,
+  Brain, Image, Code, BarChart3, Mic, Video, FileText, Search, Shield,
   Package, Activity, Users, ShieldCheck, ArrowRight, Star, Building2,
   Landmark, HeartPulse, Factory, ShoppingCart, GraduationCap, Cpu,
   type LucideIcon,
@@ -23,6 +23,19 @@ const CATEGORY_ICONS: Record<string, LucideIcon> = {
   'Document AI': FileText,
   'Search & Research': Search,
 };
+
+const TOOL_ICONS: Record<string, LucideIcon> = {
+  Brain, Image, Code, Shield, BarChart3, Mic, Video, FileText, Search,
+};
+
+const TRUSTED_BY = [
+  'Meridian Financial Group',
+  'Alderbrook Health Systems',
+  'Falkirk Manufacturing Co.',
+  'Zenith Retail Holdings',
+  'Harrowgate Research Institute',
+  'PacifiCore Logistics',
+];
 
 const INDUSTRY_STRIP = [
   { label: 'Financial Services', icon: Landmark },
@@ -85,11 +98,9 @@ function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <span className="home__hero-eyebrow">YAKKAY AI Line Marketplace</span>
-          <h1 className="home__hero-title">The enterprise marketplace for production-grade AI</h1>
+          <h1 className="home__hero-title">Find the right AI expert for your business</h1>
           <p className="home__hero-subtitle">
-            Discover, govern, and deploy language models, agents, and integrations — all through one
-            unified, compliant platform built for the enterprise.
+            Work with vetted developers and vendors to discover, deploy, and integrate production-grade AI — fast.
           </p>
 
           <div className="home__hero-search">
@@ -112,7 +123,46 @@ function Home() {
         </motion.div>
       </section>
 
-     {/* Stats bar */}
+      {/* Category quick-access strip (icon-tile row, directly under the hero) */}
+      <motion.section
+        className="home__category-strip"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-80px' }}
+      >
+        <div className="home__category-strip-row">
+          {categoryStats.map((cat) => {
+            const Icon = CATEGORY_ICONS[cat.category] || Brain;
+            return (
+              <motion.button
+                key={cat.category}
+                type="button"
+                className="home__category-pill"
+                variants={itemVariants}
+                onClick={() => handleCategoryClick(cat.category)}
+              >
+                <span className="home__category-pill-icon">
+                  <Icon size={22} />
+                </span>
+                <span className="home__category-pill-label">{cat.category}</span>
+              </motion.button>
+            );
+          })}
+        </div>
+      </motion.section>
+
+      {/* Trusted-by strip */}
+      <section className="home__trusted-strip">
+        <p className="home__trusted-strip-label">Trusted by enterprise teams at</p>
+        <div className="home__trusted-strip-row">
+          {TRUSTED_BY.map((name) => (
+            <span key={name} className="home__trusted-strip-name">{name}</span>
+          ))}
+        </div>
+      </section>
+
+      {/* Stats bar */}
       <motion.section
         className="home__stats"
         variants={containerVariants}
@@ -136,7 +186,7 @@ function Home() {
         })}
       </motion.section>
 
-      {/* Popular categories */}
+      {/* Featured solutions — gig-card style */}
       <motion.section
         className="home__section"
         variants={containerVariants}
@@ -145,71 +195,40 @@ function Home() {
         viewport={{ once: true, margin: '-80px' }}
       >
         <div className="home__section-header">
-          <h2>Popular Categories</h2>
-          <button type="button" className="home__section-link" onClick={() => navigate('/browse')}>
-            View all <ArrowRight size={14} />
-          </button>
-        </div>
-        <div className="home__categories-grid">
-          {categoryStats.map((cat) => {
-            const Icon = CATEGORY_ICONS[cat.category] || Brain;
-            return (
-              <motion.button
-                key={cat.category}
-                type="button"
-                className="home__category-card"
-                variants={itemVariants}
-                onClick={() => handleCategoryClick(cat.category)}
-              >
-                <div className="home__category-icon" style={{ background: 'var(--brand-blue-lt)', color: 'var(--brand-blue)' }}>
-                  <Icon size={20} />
-                </div>
-                <div>
-                  <div className="home__category-name">{cat.category}</div>
-                  <div className="home__category-count">{cat.count} solutions</div>
-                </div>
-              </motion.button>
-            );
-          })}
-        </div>
-      </motion.section>
-
-      {/* Featured solutions */}
-      <motion.section
-        className="home__section"
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-80px' }}
-      >
-        <div className="home__section-header">
-          <h2>Featured Solutions</h2>
+          <h2>Popular Services</h2>
           <button type="button" className="home__section-link" onClick={() => navigate('/browse')}>
             Browse marketplace <ArrowRight size={14} />
           </button>
         </div>
         <div className="home__featured-grid">
-          {featuredTools.map((tool) => (
-            <motion.div
-              key={tool.id}
-              className="home__featured-card"
-              variants={itemVariants}
-              onClick={() => navigate(`/tool/${tool.id}`)}
-            >
-              <div className="home__featured-badge">{tool.badge}</div>
-              <h3 className="home__featured-name">{tool.name}</h3>
-              <p className="home__featured-company">{tool.company}</p>
-              <p className="home__featured-desc">{tool.description}</p>
-              <div className="home__featured-footer">
-                <span className="home__featured-rating">
-                  <Star size={12} fill="var(--warning)" stroke="var(--warning)" /> {tool.rating.toFixed(1)}
-                </span>
-                <span className="home__featured-cta">
-                  View details <ArrowRight size={12} />
-                </span>
-              </div>
-            </motion.div>
-          ))}
+          {featuredTools.map((tool) => {
+            const ToolIcon = TOOL_ICONS[tool.icon] || Brain;
+            return (
+              <motion.div
+                key={tool.id}
+                className="home__featured-card"
+                variants={itemVariants}
+                onClick={() => navigate(`/tool/${tool.id}`)}
+              >
+                <div className="home__featured-card-header" style={{ background: tool.gradient }}>
+                  {tool.badge && <span className="home__featured-badge">{tool.badge}</span>}
+                  <ToolIcon size={36} className="home__featured-card-icon" />
+                </div>
+                <div className="home__featured-card-body">
+                  <h3 className="home__featured-name">{tool.name}</h3>
+                  <p className="home__featured-company">{tool.company}</p>
+                  <div className="home__featured-footer">
+                    <span className="home__featured-rating">
+                      <Star size={12} fill="var(--warning)" stroke="var(--warning)" /> {tool.rating.toFixed(1)}
+                    </span>
+                    <span className="home__featured-cta">
+                      View details <ArrowRight size={12} />
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </motion.section>
 

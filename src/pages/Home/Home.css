@@ -3,15 +3,26 @@
   flex-direction: column;
 }
 
-/* ----- Hero ----- */
+/* ----- Hero (dark, search-first) ----- */
 .home__hero {
-  background: linear-gradient(180deg, var(--brand-blue-lt) 0%, var(--bg-primary) 100%);
-  padding: 80px 32px 56px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0b1220 0%, #0f172a 60%, #16213a 100%);
+  padding: 96px 32px 72px;
   display: flex;
   justify-content: center;
 }
 
+.home__hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.18), transparent 55%);
+  pointer-events: none;
+}
+
 .home__hero-inner {
+  position: relative;
   max-width: 760px;
   width: 100%;
   display: flex;
@@ -21,29 +32,17 @@
   gap: 16px;
 }
 
-.home__hero-eyebrow {
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--brand-blue);
-  background: var(--surface-white);
-  border: 1px solid var(--border-subtle);
-  padding: 6px 14px;
-  border-radius: 20px;
-}
-
 .home__hero-title {
   font-size: 2.75rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: -0.02em;
-  color: var(--text-primary);
+  color: #ffffff;
   margin: 0;
 }
 
 .home__hero-subtitle {
   font-size: 16px;
-  color: var(--text-secondary);
+  color: rgba(226, 232, 240, 0.78);
   line-height: 1.6;
   max-width: 600px;
   margin: 0;
@@ -56,31 +55,56 @@
   margin-top: 8px;
 }
 
+/* Dark-scoped SearchBar override — the shared SearchBar component stays
+   theme-neutral; only this hero instance needs a dark-friendly look. */
+.home__hero-search .search-bar {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(148, 163, 184, 0.25);
+}
+
+.home__hero-search .search-bar--focused {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
+}
+
+.home__hero-search .search-bar__icon {
+  color: rgba(226, 232, 240, 0.6);
+}
+
+.home__hero-search .search-bar__input {
+  color: #ffffff;
+}
+
+.home__hero-search .search-bar__input::placeholder {
+  color: rgba(226, 232, 240, 0.5);
+}
+
 .home__hero-suggestions {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
   justify-content: center;
   font-size: 13px;
-  color: var(--text-muted);
+  color: rgba(226, 232, 240, 0.6);
 }
 
 .home__hero-suggestions button {
-  background: var(--surface-white);
-  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.25);
   border-radius: 20px;
   padding: 5px 12px;
   font-size: 13px;
-  color: var(--text-secondary);
+  color: rgba(226, 232, 240, 0.85);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .home__hero-suggestions button:hover {
-  border-color: var(--brand-blue);
-  color: var(--brand-blue);
-  background: var(--brand-blue-lt);
+  border-color: #60a5fa;
+  color: #ffffff;
+  background: rgba(59, 130, 246, 0.2);
 }
 
 /* ----- Stats bar ----- */
@@ -160,51 +184,91 @@
   color: var(--brand-blue-dk);
 }
 
-/* ----- Categories grid ----- */
-.home__categories-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+/* ----- Category quick-access strip (Fiverr-style icon tiles) ----- */
+.home__category-strip {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 32px 40px;
 }
 
-.home__category-card {
+.home__category-strip-row {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.home__category-pill {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
+  width: 132px;
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  padding: 18px;
+  padding: 18px 12px;
   cursor: pointer;
-  text-align: left;
   transition: all var(--transition-fast);
 }
 
-.home__category-card:hover {
+.home__category-pill:hover {
   border-color: var(--brand-blue);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
-.home__category-icon {
-  width: 42px;
-  height: 42px;
+.home__category-pill-icon {
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--brand-blue-lt);
+  color: var(--brand-blue);
   flex-shrink: 0;
 }
 
-.home__category-name {
-  font-size: 14px;
+.home__category-pill-label {
+  font-size: 12px;
   font-weight: 700;
   color: var(--text-primary);
+  text-align: center;
+  line-height: 1.3;
 }
 
-.home__category-count {
-  font-size: 12px;
-  color: var(--text-muted);
+/* ----- Trusted-by strip ----- */
+.home__trusted-strip {
+  background: linear-gradient(135deg, #0b1220 0%, #0f172a 60%, #16213a 100%);
+  padding: 32px;
+  text-align: center;
+}
+
+.home__trusted-strip-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(226, 232, 240, 0.55);
+  margin: 0 0 20px 0;
+}
+
+.home__trusted-strip-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+}
+
+.home__trusted-strip-name {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
 }
 
 /* ----- Featured grid ----- */
@@ -216,15 +280,14 @@
 
 .home__featured-card {
   position: relative;
+  overflow: hidden;
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  padding: 20px;
   cursor: pointer;
   transition: all var(--transition-fast);
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 
 .home__featured-card:hover {
@@ -233,15 +296,39 @@
   transform: translateY(-2px);
 }
 
+.home__featured-card-header {
+  position: relative;
+  height: 108px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.home__featured-card-icon {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.home__featured-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px 18px;
+}
+
 .home__featured-badge {
-  align-self: flex-start;
+  position: absolute;
+  top: 12px;
+  left: 12px;
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--brand-blue);
-  background: var(--brand-blue-lt);
-  padding: 3px 8px;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 4px 10px;
   border-radius: 12px;
 }
 
@@ -256,18 +343,6 @@
   font-size: 12px;
   color: var(--text-muted);
   margin: 0;
-}
-
-.home__featured-desc {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.55;
-  margin: 0;
-  flex: 1;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 .home__featured-footer {
@@ -379,9 +454,6 @@
   .home__stats {
     grid-template-columns: repeat(2, 1fr);
   }
-  .home__categories-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .home__featured-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -394,8 +466,11 @@
   .home__stats {
     grid-template-columns: 1fr;
   }
-  .home__categories-grid,
   .home__featured-grid {
     grid-template-columns: 1fr;
+  }
+  .home__category-pill {
+    width: 104px;
+    padding: 14px 8px;
   }
 }

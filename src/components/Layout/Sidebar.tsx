@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   LayoutDashboard,
   Store,
@@ -7,9 +6,13 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
   Sparkles,
   ShieldCheck,
+  Briefcase,
+  Gauge,
+  UserCircle,
+  Package,
+  Send,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -18,6 +21,8 @@ import { toggleSidebar, setActivePage } from '../../store/slices/uiSlice';
 import { useVisibleCrmMenu } from '../../hooks/useVisibleCrmMenu';
 import { useCrmTheme } from '../../hooks/useCrmTheme';
 import { resolveCrmIcon } from '../../modules/crm/components/crmIcons';
+import SidebarNavGroup from './SidebarNavGroup';
+import type { SidebarNavGroupItem } from './SidebarNavGroup';
 import './Sidebar.css';
 
 interface NavItem {
@@ -34,6 +39,13 @@ const navItems: NavItem[] = [
   { icon: Settings, label: 'Settings', path: '/settings' },
 ];
 
+const FREELANCER_NAV_ITEMS: SidebarNavGroupItem[] = [
+  { id: 'freelancer-dashboard', label: 'Dashboard', path: '/freelancer/dashboard', icon: Gauge },
+  { id: 'freelancer-profile', label: 'Profile', path: '/freelancer/profile', icon: UserCircle },
+  { id: 'freelancer-gigs', label: 'Gig Management', path: '/freelancer/gigs', icon: Package },
+  { id: 'freelancer-proposals', label: 'Proposals', path: '/freelancer/proposals', icon: Send },
+];
+
 const Sidebar: React.FC = () => {
   const collapsed = useAppSelector((s) => s.ui.sidebarCollapsed);
   const dispatch = useAppDispatch();
@@ -43,7 +55,6 @@ const Sidebar: React.FC = () => {
   const isAdmin = authUser?.role === 'Admin';
   const crmMenuGroups = useVisibleCrmMenu();
   const { theme: crmTheme } = useCrmTheme();
-  const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
 
   const visibleNavItems = isAdmin
     ? [...navItems, { icon: ShieldCheck, label: 'Admin', path: '/admin' }]
@@ -118,86 +129,29 @@ const Sidebar: React.FC = () => {
           );
         })}
 
-        {crmMenuGroups.map((group) => {
-          const GroupIcon = resolveCrmIcon(group.icon);
-          const isExpanded = expandedGroups[group.id] ?? true;
-          const activeChildId = [...group.children]
-            .sort((a, b) => b.path.length - a.path.length)
-            .find((c) => location.pathname.startsWith(c.path))?.id;
-          const isGroupActive = Boolean(activeChildId);
+        <SidebarNavGroup
+          label="Freelancer"
+          icon={Briefcase}
+          items={FREELANCER_NAV_ITEMS}
+          collapsed={collapsed}
+        />
 
-          return (
-            <div
-              className="sidebar__group"
-              key={group.id}
-              style={{ '--crm-accent': crmTheme.primaryColor } as React.CSSProperties}
-            >
-              <button
-                type="button"
-                className={`sidebar__nav-item sidebar__group-header ${isGroupActive ? 'sidebar__nav-item--active' : ''}`}
-                onClick={() =>
-                  collapsed
-                    ? navigate(group.children[0]?.path ?? group.path)
-                    : setExpandedGroups((prev) => ({ ...prev, [group.id]: !isExpanded }))
-                }
-                title={collapsed ? group.name : undefined}
-              >
-                <span className="sidebar__nav-icon">
-                  <GroupIcon size={20} />
-                </span>
-                <AnimatePresence>
-                  {!collapsed && (
-                    <motion.span
-                      className="sidebar__nav-label"
-                      initial={{ opacity: 0, width: 0 }}
-                      animate={{ opacity: 1, width: 'auto' }}
-                      exit={{ opacity: 0, width: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {group.name}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-                {!collapsed && (
-                  <ChevronDown size={14} className={`sidebar__group-chevron ${isExpanded ? 'sidebar__group-chevron--open' : ''}`} />
-                )}
-              </button>
-
-              <AnimatePresence initial={false}>
-                {!collapsed && isExpanded && (
-                  <motion.div
-                    className="sidebar__group-children"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {group.children.map((child) => {
-                      const ChildIcon = resolveCrmIcon(child.icon);
-                      const isChildActive = child.id === activeChildId;
-                      return (
-                        <button
-                          key={child.id}
-                          type="button"
-                          className={`sidebar__nav-item sidebar__group-child ${isChildActive ? 'sidebar__nav-item--active' : ''}`}
-                          onClick={() => navigate(child.path)}
-                        >
-                          <span className="sidebar__nav-icon">
-                            <ChildIcon size={16} />
-                          </span>
-                          <span className="sidebar__nav-label">{child.name}</span>
-                          {child.badgeCount !== undefined && (
-                            <span className="sidebar__badge">{child.badgeCount}</span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          );
-        })}
+        {crmMenuGroups.map((group) => (
+          <SidebarNavGroup
+            key={group.id}
+            label={group.name}
+            icon={resolveCrmIcon(group.icon)}
+            collapsed={collapsed}
+            accentColor={crmTheme.primaryColor}
+            items={group.children.map((child) => ({
+              id: child.id,
+              label: child.name,
+              path: child.path,
+              icon: resolveCrmIcon(child.icon),
+              badgeCount: child.badgeCount,
+            }))}
+          />
+        ))}
       </nav>
 
       {/* Collapse Toggle */}

@@ -2,8 +2,8 @@
   position: sticky;
   top: 0;
   z-index: 200;
-  background: var(--surface-white);
-  border-bottom: 1px solid var(--border-subtle);
+  background: linear-gradient(135deg, #0b1220 0%, #0f172a 60%, #16213a 100%);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
 }
 
 .sticky-header__row {
@@ -40,12 +40,12 @@
   font-family: var(--font-heading);
   font-size: 17px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #ffffff;
   white-space: nowrap;
 }
 
 .sticky-header__brand-text span {
-  color: var(--brand-blue);
+  color: #60a5fa;
 }
 
 .sticky-header__nav {
@@ -65,7 +65,7 @@
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: rgba(226, 232, 240, 0.75);
   padding: 8px 12px;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -75,8 +75,8 @@
 
 .sticky-header__nav-link:hover,
 .sticky-header__nav-link--active {
-  color: var(--brand-blue);
-  background: var(--brand-blue-lt);
+  color: #ffffff;
+  background: rgba(59, 130, 246, 0.16);
 }
 
 .sticky-header__chevron--open {
@@ -84,22 +84,45 @@
   transition: transform var(--transition-fast);
 }
 
-/* Sliding active indicator — a single element that animates between nav
-   triggers via framer-motion's layoutId, rather than a static underline. */
-.sticky-header__nav-indicator {
-  position: absolute;
-  left: 10px;
-  right: 10px;
-  bottom: 2px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--brand-blue);
-}
-
 .sticky-header__search {
   flex: 1;
   max-width: 360px;
   margin-left: auto;
+}
+
+/* Force the shared SearchBar component into a dark-friendly variant here
+   only — SearchBar.css itself stays theme-neutral for its other uses
+   (e.g. the light hero search on the Home page). */
+.sticky-header__search .search-bar {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(148, 163, 184, 0.25);
+}
+
+.sticky-header__search .search-bar--focused {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
+}
+
+.sticky-header__search .search-bar__icon {
+  color: rgba(226, 232, 240, 0.6);
+}
+
+.sticky-header__search .search-bar__input {
+  color: #ffffff;
+}
+
+.sticky-header__search .search-bar__input::placeholder {
+  color: rgba(226, 232, 240, 0.45);
+}
+
+.sticky-header__search .search-bar__clear {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(226, 232, 240, 0.75);
+}
+
+.sticky-header__search .search-bar__clear:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
 }
 
 .sticky-header__actions {
@@ -113,9 +136,9 @@
   width: 36px;
   height: 36px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border-subtle);
-  background: var(--surface-white);
-  color: var(--text-secondary);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(226, 232, 240, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -125,8 +148,8 @@
 }
 
 .sticky-header__icon-btn:hover {
-  background: var(--neutral-100);
-  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
 }
 
 .sticky-header__notification-dot {
@@ -137,7 +160,7 @@
   height: 6px;
   border-radius: 50%;
   background: var(--error);
-  border: 2px solid var(--surface-white);
+  border: 2px solid #0f172a;
 }
 
 .sticky-header__login-btn {
@@ -146,35 +169,58 @@
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: rgba(226, 232, 240, 0.8);
   cursor: pointer;
   padding: 8px 4px;
   white-space: nowrap;
 }
 
 .sticky-header__login-btn:hover {
-  color: var(--brand-blue);
+  color: #60a5fa;
 }
 
-.sticky-header__demo-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--brand-blue);
-  color: #ffffff;
+.sticky-header__seller-link {
+  background: none;
   border: none;
-  border-radius: var(--radius-sm);
-  padding: 9px 16px;
   font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 600;
+  color: rgba(226, 232, 240, 0.8);
   cursor: pointer;
-  transition: background var(--transition-fast);
+  padding: 8px 4px;
   white-space: nowrap;
 }
 
-.sticky-header__demo-btn:hover {
-  background: var(--brand-blue-dk);
+.sticky-header__seller-link:hover {
+  color: #60a5fa;
+}
+
+.sticky-header__join-btn {
+  display: inline-flex;
+  align-items: center;
+  background: #ffffff;
+  color: #0f172a;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 18px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.sticky-header__join-btn:hover {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.sticky-header__seller-link:focus-visible,
+.sticky-header__login-btn:focus-visible,
+.sticky-header__join-btn:focus-visible,
+.sticky-header__nav-link:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
 }
 
 .sticky-header__avatar {
@@ -196,8 +242,8 @@
 
 .sticky-header__dropdown {
   min-width: 220px;
-  background: var(--surface-white);
-  border: 1px solid var(--border-subtle);
+  background: #111827;
+  border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: var(--radius-lg);
   padding: 8px;
   box-shadow: var(--shadow-lg);
@@ -211,19 +257,19 @@
 .sticky-header__dropdown-name {
   font-size: 14px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #ffffff;
   margin: 0;
 }
 
 .sticky-header__dropdown-email {
   font-size: 12px;
-  color: var(--text-muted);
+  color: rgba(226, 232, 240, 0.6);
   margin: 2px 0 0 0;
 }
 
 .sticky-header__dropdown-separator {
   height: 1px;
-  background: var(--border-subtle);
+  background: rgba(148, 163, 184, 0.2);
   margin: 6px 0;
 }
 
@@ -232,7 +278,7 @@
   align-items: center;
   gap: 10px;
   font-size: 13px;
-  color: var(--text-secondary);
+  color: rgba(226, 232, 240, 0.85);
   padding: 9px 12px;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -241,8 +287,8 @@
 
 .sticky-header__dropdown-item:hover,
 .sticky-header__dropdown-item[data-highlighted] {
-  background: var(--brand-blue-lt);
-  color: var(--brand-blue);
+  background: rgba(59, 130, 246, 0.16);
+  color: #60a5fa;
 }
 
 .sticky-header__dropdown-item--danger {

@@ -1,4 +1,5 @@
-import { Routes, Route } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from './components/Layout/AppLayout';
 import MarketplaceLayout from './components/layouts/MarketplaceLayout';
 import ProtectedRoute from './modules/auth/ProtectedRoute';
@@ -6,6 +7,7 @@ import ProtectedRoute from './modules/auth/ProtectedRoute';
 import Home from './pages/Home';
 import Browse from './pages/Browse';
 import ToolDetail from './pages/ToolDetail';
+import VendorDetail from './pages/VendorDetail';
 import Catalog from './pages/Catalog';
 import Governance from './pages/Governance';
 import Integrations from './pages/Integrations';
@@ -27,6 +29,20 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import NotFound from './pages/NotFound';
 
+// Lazy-loaded — the first code-split routes in the app. Marketplace
+// browsing pages are reached less often than the always-visited Home/
+// Browse, so they don't need to be in the initial bundle.
+const CategoriesIndexPage = lazy(() => import('./modules/marketplace/pages/CategoriesIndexPage'));
+const CategoryBrowsePage = lazy(() => import('./modules/marketplace/pages/CategoryBrowsePage'));
+const SearchResultsPage = lazy(() => import('./modules/marketplace/pages/SearchResultsPage'));
+const GigDetailsPage = lazy(() => import('./modules/marketplace/pages/GigDetailsPage'));
+const Unauthorized = lazy(() => import('./pages/Unauthorized'));
+const Forbidden = lazy(() => import('./pages/Forbidden'));
+
+function LazyPageFallback() {
+  return <div style={{ minHeight: '60vh' }} aria-busy="true" />;
+}
+
 import CrmProviders from './routes/CrmProviders';
 import CrmRootLayout from './routes/CrmRootLayout';
 import CrmRoute from './routes/CrmRoute';
@@ -39,6 +55,12 @@ import DynamicPageView from './modules/crm/pages/DynamicPageView';
 import MenuManagementPage from './modules/crm/settings/MenuManagementPage';
 import ThemeSettingsPage from './modules/crm/settings/ThemeSettingsPage';
 
+import FreelancerRootLayout from './routes/FreelancerRootLayout';
+import FreelancerDashboard from './modules/freelancer/dashboard/FreelancerDashboard';
+import FreelancerProfilePage from './modules/freelancer/profile/FreelancerProfilePage';
+import FreelancerGigsPage from './modules/freelancer/gigs/FreelancerGigsPage';
+import FreelancerProposalsPage from './modules/freelancer/proposals/FreelancerProposalsPage';
+
 function App() {
   return (
     <Routes>
@@ -47,6 +69,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/browse" element={<Browse />} />
         <Route path="/tool/:id" element={<ToolDetail />} />
+        <Route path="/vendor/:id" element={<VendorDetail />} />
         <Route path="/catalog" element={<Catalog />} />
         <Route path="/governance" element={<Governance />} />
         <Route path="/integrations" element={<Integrations />} />
@@ -57,11 +80,63 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/request-demo" element={<RequestDemo />} />
+
+        {/* Gig marketplace (Phase 1 — read-only browsing) */}
+        <Route
+          path="/categories"
+          element={
+            <Suspense fallback={<LazyPageFallback />}>
+              <CategoriesIndexPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/category/:slug"
+          element={
+            <Suspense fallback={<LazyPageFallback />}>
+              <CategoryBrowsePage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/search"
+          element={
+            <Suspense fallback={<LazyPageFallback />}>
+              <SearchResultsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/gig/:id"
+          element={
+            <Suspense fallback={<LazyPageFallback />}>
+              <GigDetailsPage />
+            </Suspense>
+          }
+        />
       </Route>
 
       {/* Auth pages: no shell */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+
+      {/* Status pages: no shell, same pattern as NotFound */}
+      <Route
+        path="/401"
+        element={
+          <Suspense fallback={<LazyPageFallback />}>
+            <Unauthorized />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/403"
+        element={
+          <Suspense fallback={<LazyPageFallback />}>
+            <Forbidden />
+          </Suspense>
+        }
+      />
 
       {/* Authenticated workspace shell: sidebar + topbar */}
       <Route element={<ProtectedRoute />}>
@@ -97,6 +172,14 @@ function App() {
               <Route element={<CrmRoute permission="settings" />}>
                 <Route path="settings" element={<ThemeSettingsPage />} />
               </Route>
+            </Route>
+
+            <Route path="/freelancer" element={<FreelancerRootLayout />}>
+              <Route index element={<Navigate to="/freelancer/dashboard" replace />} />
+              <Route path="dashboard" element={<FreelancerDashboard />} />
+              <Route path="profile" element={<FreelancerProfilePage />} />
+              <Route path="gigs" element={<FreelancerGigsPage />} />
+              <Route path="proposals" element={<FreelancerProposalsPage />} />
             </Route>
           </Route>
         </Route>

@@ -5,6 +5,7 @@ import toolsReducer from './slices/toolsSlice';
 import uiReducer from './slices/uiSlice';
 import authReducer from './slices/authSlice';
 import marketplaceReducer from './slices/marketplaceSlice';
+import freelancerReducer from './slices/freelancerSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     ui: uiReducer,
     auth: authReducer,
     marketplace: marketplaceReducer,
+    freelancer: freelancerReducer,
   },
 });
 

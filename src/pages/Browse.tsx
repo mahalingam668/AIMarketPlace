@@ -63,6 +63,9 @@ import {
   TrendingUp,
   ListTodo,
   ArrowRight,
+  BadgeCheck,
+  SlidersHorizontal,
+  Diamond,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import GlassCard from '../components/ui/GlassCard';
@@ -81,6 +84,7 @@ import {
   resetMarketplaceFilters,
 } from '../store/slices/marketplaceSlice';
 import { trendingToolIds } from '../data/mockData';
+import { VENDOR_PROFILES, VENDOR_DIRECTORY_STATS } from '../data/vendorProfiles';
 import type { AITool, FilterState, ToolCategory } from '../types';
 import './Browse.css';
 
@@ -264,6 +268,29 @@ const MOST_USED_TAGS = [
   { name: 'Leads', count: 31 },
 ];
 
+interface FeaturedIntegration {
+  id: string;
+  name: string;
+  logoLetter: string;
+  logoColor: string;
+  category: string;
+  description: string;
+  price: string;
+  rating: number;
+}
+
+const FEATURED_INTEGRATIONS: FeaturedIntegration[] = [
+  { id: 'cloudtalk', name: 'CloudTalk Integration', logoLetter: 'C', logoColor: '#0ea5e9', category: 'Telephony', description: 'AI-powered calling. Boost answer rates with predictive dialing.', price: '$29/mo', rating: 4.7 },
+  { id: 'shopify-sync', name: 'Shopify Sync Pro', logoLetter: 'S', logoColor: '#10b981', category: 'E-commerce', description: 'Automate customer and order management seamlessly.', price: '$19/mo', rating: 4.6 },
+  { id: 'google-address', name: 'Google Address AutoComplete', logoLetter: 'G', logoColor: '#ef4444', category: 'Maps', description: 'Leverage the power of Google Maps to validate coordinates.', price: 'Free', rating: 4.8 },
+  { id: 'lead-mapper', name: 'Lead Mapper AI', logoLetter: 'L', logoColor: '#f59e0b', category: 'Sales Intelligence', description: 'Score and route inbound leads to the right rep instantly.', price: '$49/mo', rating: 4.9 },
+  { id: 'slack-connector', name: 'Slack Connector', logoLetter: 'SL', logoColor: '#8b5cf6', category: 'Collaboration', description: 'Push real-time alerts and approvals straight into Slack.', price: 'Free', rating: 4.5 },
+  { id: 'stripe-billing', name: 'Stripe Billing Sync', logoLetter: 'ST', logoColor: '#6366f1', category: 'Payments', description: 'Keep subscriptions and invoices in perfect sync with Stripe.', price: '$15/mo', rating: 4.8 },
+  { id: 'zendesk-bridge', name: 'Zendesk Bridge', logoLetter: 'Z', logoColor: '#14b8a6', category: 'Support', description: 'Turn support tickets into structured, actionable insights.', price: '$25/mo', rating: 4.4 },
+  { id: 'hubspot-pipeline', name: 'HubSpot Pipeline Sync', logoLetter: 'H', logoColor: '#ec4899', category: 'CRM', description: 'Mirror deal stages and contacts across both platforms live.', price: '$35/mo', rating: 4.6 },
+  { id: 'mailchimp-campaign', name: 'Mailchimp Campaign Sync', logoLetter: 'M', logoColor: '#f97316', category: 'Marketing', description: 'Trigger targeted campaigns straight from product usage data.', price: 'Free', rating: 4.3 },
+];
+
 const CLIENT_TESTIMONIALS = [
   {
     logo: 'UBS',
@@ -360,6 +387,29 @@ function Browse() {
   // Carousel & Notification states
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
+  // Vendors & Developers directory filter
+  const [profileRoleFilter, setProfileRoleFilter] = useState<'all' | 'Vendor' | 'Developer'>('all');
+  const [profileSort, setProfileSort] = useState<'relevant' | 'rating' | 'reviews' | 'price'>('relevant');
+
+  const filteredProfiles = useMemo(() => {
+    const base = profileRoleFilter === 'all' ? VENDOR_PROFILES : VENDOR_PROFILES.filter((p) => p.role === profileRoleFilter);
+    const sorted = [...base];
+    switch (profileSort) {
+      case 'rating':
+        sorted.sort((a, b) => b.rating - a.rating);
+        break;
+      case 'reviews':
+        sorted.sort((a, b) => b.reviewCount - a.reviewCount);
+        break;
+      case 'price':
+        sorted.sort((a, b) => parseFloat(a.startingPrice.replace(/[^0-9.]/g, '')) - parseFloat(b.startingPrice.replace(/[^0-9.]/g, '')));
+        break;
+      default:
+        break;
+    }
+    return sorted;
+  }, [profileRoleFilter, profileSort]);
+
   // Browse-by-category menu state
   const [categoriesExpanded, setCategoriesExpanded] = useState(false);
 
@@ -399,6 +449,10 @@ function Browse() {
   const handleWatchVideo = (toolName: string, e: React.MouseEvent) => {
     e.stopPropagation();
     toast.success(`Launching video walkthrough for ${toolName}`);
+  };
+
+  const handleApplyToJoin = () => {
+    toast.success('Thanks! Your partner application request has been received.');
   };
 
   const handleCategoryMenuSelect = (categoryName: string) => {
@@ -719,90 +773,60 @@ function Browse() {
         viewport={{ once: true, margin: "-100px" }}
       >
         <div className="zoho-banner">
-          <h2 className="zoho-banner__title">Featured Integrations</h2>
-          <div className="zoho-banner__grid">
-            <div className="zoho-banner__item">
-              <span className="zoho-banner__play-tag"><Play size={10} fill="currentColor"/> Play</span>
-              <div className="zoho-banner__item-content">
-                <div className="zoho-banner__item-logo zoho-banner__logo--blue">C</div>
-                <div>
-                  <h4 className="zoho-banner__item-name">CloudTalk Integration</h4>
-                  <p className="zoho-banner__item-desc">Al-powered calling. Boost answer rates with predictive dialing.</p>
-                </div>
-              </div>
-              <div className="zoho-banner__item-footer">
-                <span className="zoho-banner__item-price">$29/mo</span>
-                <div className="zoho-banner__item-actions">
-                  <button type="button" className="zoho-banner__btn zoho-banner__btn--video zoho-banner__btn--compact" onClick={(e) => handleWatchVideo('CloudTalk Integration', e)}>Watch Demo</button>
-                  <button type="button" className="zoho-banner__btn zoho-banner__btn--install zoho-banner__btn--compact" onClick={(e) => handleInstall('CloudTalk Integration', e)}>Install</button>
-                </div>
-              </div>
-            </div>
+          <div className="zoho-banner__heading">
+            <h2 className="zoho-banner__title">Featured Integrations</h2>
+            <p className="zoho-banner__subtitle">Popular connectors trusted by thousands of enterprise teams</p>
+          </div>
 
-            <div className="zoho-banner__item">
-              <span className="zoho-banner__play-tag"><Play size={10} fill="currentColor"/> Play</span>
-              <div className="zoho-banner__item-content">
-                <div className="zoho-banner__item-logo zoho-banner__logo--green">S</div>
-                <div>
-                  <h4 className="zoho-banner__item-name">Shopify Sync Pro</h4>
-                  <p className="zoho-banner__item-desc">Automate customer and order management seamlessly.</p>
-                </div>
-              </div>
-              <div className="zoho-banner__item-footer">
-                <span className="zoho-banner__item-price">$19/mo</span>
-                <div className="zoho-banner__item-actions">
-                  <button type="button" className="zoho-banner__btn zoho-banner__btn--video zoho-banner__btn--compact" onClick={(e) => handleWatchVideo('Shopify Sync Pro', e)}>Watch Demo</button>
-                  <button type="button" className="zoho-banner__btn zoho-banner__btn--install zoho-banner__btn--compact" onClick={(e) => handleInstall('Shopify Sync Pro', e)}>Install</button>
-                </div>
-              </div>
-            </div>
+          <div className="integrations-marquee">
+            <div className="integrations-marquee__track">
+              {[...FEATURED_INTEGRATIONS, ...FEATURED_INTEGRATIONS].map((integration, index) => (
+                <div
+                  className="integration-card"
+                  key={`${integration.id}-${index}`}
+                  aria-hidden={index >= FEATURED_INTEGRATIONS.length}
+                >
+                  <div className="integration-card__top">
+                    <div className="integration-card__logo" style={{ background: integration.logoColor }}>
+                      {integration.logoLetter}
+                    </div>
+                    <div className="integration-card__identity">
+                      <h4 className="integration-card__name">{integration.name}</h4>
+                      <span className="integration-card__category">{integration.category}</span>
+                    </div>
+                  </div>
 
-            <div className="zoho-banner__item">
-              <span className="zoho-banner__play-tag"><Play size={10} fill="currentColor"/> Play</span>
-              <div className="zoho-banner__item-content">
-                <div className="zoho-banner__item-logo zoho-banner__logo--red">G</div>
-                <div>
-                  <h4 className="zoho-banner__item-name">Google Address AutoComplete</h4>
-                  <p className="zoho-banner__item-desc">Leverage the power of Google Maps to validate coordinates.</p>
-                </div>
-              </div>
-              <div className="zoho-banner__item-footer">
-                <span className="zoho-banner__item-price">Free</span>
-                <div className="zoho-banner__item-actions">
-                  <button type="button" className="zoho-banner__btn zoho-banner__btn--video zoho-banner__btn--compact" onClick={(e) => handleWatchVideo('Google Address AutoComplete', e)}>Watch Demo</button>
-                  <button type="button" className="zoho-banner__btn zoho-banner__btn--install zoho-banner__btn--compact" onClick={(e) => handleInstall('Google Address AutoComplete', e)}>Install</button>
-                </div>
-              </div>
-            </div>
+                  <p className="integration-card__desc">{integration.description}</p>
 
-            {/* Hover/Featured Highlight Overlay Detail Card */}
-            <div className="zoho-banner__detail-card">
-              <h3 className="zoho-banner__detail-name">Lead Mapper AI</h3>
-              <div className="zoho-banner__detail-meta">
-                <div className="zoho-banner__detail-row">
-                  <span className="zoho-banner__detail-label">Product</span>
-                  <span className="zoho-banner__detail-val">CRM Platform</span>
+                  <div className="integration-card__footer">
+                    <div className="integration-card__meta">
+                      <span className="integration-card__price">{integration.price}</span>
+                      <span className="integration-card__rating">
+                        <Star size={11} fill="currentColor" /> {integration.rating.toFixed(1)}
+                      </span>
+                    </div>
+                    <div className="integration-card__actions">
+                      <button
+                        type="button"
+                        className="integration-card__btn-icon"
+                        tabIndex={index >= FEATURED_INTEGRATIONS.length ? -1 : 0}
+                        aria-label={`Watch demo of ${integration.name}`}
+                        onClick={(e) => handleWatchVideo(integration.name, e)}
+                      >
+                        <Play size={12} fill="currentColor" />
+                      </button>
+                      <button
+                        type="button"
+                        className="integration-card__btn-install"
+                        tabIndex={index >= FEATURED_INTEGRATIONS.length ? -1 : 0}
+                        onClick={(e) => handleInstall(integration.name, e)}
+                      >
+                        <Download size={12} /> Install
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div className="zoho-banner__detail-row">
-                  <span className="zoho-banner__detail-label">Category</span>
-                  <span className="zoho-banner__detail-val">Sales Intelligence</span>
-                </div>
-                <div className="zoho-banner__detail-row">
-                  <span className="zoho-banner__detail-label">Rating</span>
-                  <span className="zoho-banner__detail-val" style={{ color: 'var(--warning)', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                    <Star size={12} fill="currentColor" />
-                    <Star size={12} fill="currentColor" />
-                    <Star size={12} fill="currentColor" />
-                    <Star size={12} fill="currentColor" />
-                    <Star size={12} fill="currentColor" />
-                    <span style={{ color: 'var(--text-muted)', fontSize: '11px', marginLeft: '4px' }}>(12)</span>
-                  </span>
-                </div>
-              </div>
-              <div className="zoho-banner__detail-actions">
-                <button type="button" className="zoho-banner__btn zoho-banner__btn--video" onClick={(e) => handleWatchVideo('Lead Mapper AI', e)}>Watch video</button>
-                <button type="button" className="zoho-banner__btn zoho-banner__btn--install" onClick={(e) => handleInstall('Lead Mapper AI', e)}>Install</button>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -818,28 +842,25 @@ function Browse() {
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
       >
-        <h2 className="section-title">Editor's Picks</h2>
+        <h2 className="section-title section-title--display">Editor's Picks</h2>
         <div className="editors-grid">
           {filteredTools.slice(0, 4).map((tool) => {
             const ToolIcon = getToolIcon(tool.icon);
             return (
-              <GlassCard key={`editor-${tool.id}`} hover className="editor-card" onClick={() => navigate(`/tool/${tool.id}`)}>
-                <div className="editor-card__header">
+              <GlassCard key={`editor-${tool.id}`} hover className="editor-card" padding="0" onClick={() => navigate(`/tool/${tool.id}`)}>
+                <div className="editor-card__header" style={{ background: tool.gradient }}>
                   <span className="editor-card__play"><Play size={10} fill="currentColor"/> Demo</span>
-                  <div className="editor-card__icon" style={{ background: getIconBg(tool.category), color: getIconColor(tool.category) }}>
-                    <ToolIcon size={20} />
-                  </div>
-                  <div>
-                    <h4 className="editor-card__name">{tool.name}</h4>
-                    <p className="editor-card__company">{tool.company}</p>
-                  </div>
+                  <ToolIcon size={36} strokeWidth={1.25} className="editor-card__header-icon" />
                 </div>
-                <p className="editor-card__desc">{tool.description}</p>
-                <div className="editor-card__actions">
-                  <span className="editor-card__price">{formatPrice(tool).text}</span>
-                  <button type="button" className="editor-card__btn-install" onClick={(e) => handleInstall(tool.name, e)}>
-                    <Download size={12} /> Install
-                  </button>
+                <div className="editor-card__body">
+                  <h4 className="editor-card__name">{tool.name}</h4>
+                  <p className="editor-card__company">{tool.company}</p>
+                  <div className="editor-card__actions">
+                    <span className="editor-card__price">{formatPrice(tool).text}</span>
+                    <button type="button" className="editor-card__btn-install" onClick={(e) => handleInstall(tool.name, e)}>
+                      <Download size={12} /> Install
+                    </button>
+                  </div>
                 </div>
               </GlassCard>
             );
@@ -1551,6 +1572,158 @@ function Browse() {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* ========================================================
+          DIVISION 7: VENDORS & DEVELOPERS DIRECTORY
+          ======================================================== */}
+      <motion.div
+        className="browse__div-7"
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+      >
+        <div className="vendor-directory">
+          <div className="vendor-directory__banner">
+            <div className="vendor-directory__banner-main">
+              <div className="vendor-directory__banner-icon">
+                <Users size={22} />
+              </div>
+              <div className="vendor-directory__banner-text">
+                <h2 className="vendor-directory__banner-title">Vendors & Developers Network</h2>
+                <p className="vendor-directory__banner-subtitle">
+                  Connect with certified implementation partners and independent developers who extend the marketplace
+                </p>
+              </div>
+            </div>
+            <div className="vendor-directory__banner-stats">
+              <div className="vendor-directory__banner-stat">
+                <strong>{VENDOR_DIRECTORY_STATS.totalProfiles}</strong>
+                <span>Certified Profiles</span>
+              </div>
+              <div className="vendor-directory__banner-stat">
+                <strong>{VENDOR_DIRECTORY_STATS.avgRating}</strong>
+                <span>Avg. Rating</span>
+              </div>
+              <div className="vendor-directory__banner-stat">
+                <strong>{VENDOR_DIRECTORY_STATS.totalProjects}</strong>
+                <span>Projects Delivered</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="vendor-directory__tabs-row">
+            <div className="vendor-directory__tabs" role="tablist" aria-label="Filter by profile type">
+              {(['all', 'Vendor', 'Developer'] as const).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  role="tab"
+                  aria-selected={profileRoleFilter === option}
+                  className={`vendor-directory__tab ${profileRoleFilter === option ? 'vendor-directory__tab--active' : ''}`}
+                  onClick={() => setProfileRoleFilter(option)}
+                >
+                  {option === 'all' ? 'All' : `${option}s`}
+                </button>
+              ))}
+            </div>
+
+            <label className="vendor-directory__sort">
+              <SlidersHorizontal size={13} />
+              <span>Sort by</span>
+              <select value={profileSort} onChange={(e) => setProfileSort(e.target.value as typeof profileSort)}>
+                <option value="relevant">Most Relevant</option>
+                <option value="rating">Highest Rated</option>
+                <option value="reviews">Most Reviews</option>
+                <option value="price">Price: Low to High</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="vendor-grid">
+            {filteredProfiles.map((profile) => (
+              <div
+                key={profile.id}
+                className="vendor-card"
+                role="button"
+                tabIndex={0}
+                onClick={() => navigate(`/vendor/${profile.id}`)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') navigate(`/vendor/${profile.id}`);
+                }}
+              >
+                <span className={`vendor-card__role-tag vendor-card__role-tag--${profile.role.toLowerCase()}`}>
+                  {profile.role}
+                </span>
+
+                <div className="vendor-card__top">
+                  <div className="vendor-card__avatar" style={{ background: `${profile.avatarColor}22`, color: profile.avatarColor }}>
+                    {profile.avatarInitials}
+                  </div>
+                  <div className="vendor-card__identity">
+                    <span className="vendor-card__name">
+                      {profile.name}
+                      {profile.verified && (
+                        <span className="vendor-card__verified" title="Verified profile">
+                          <BadgeCheck size={13} />
+                        </span>
+                      )}
+                    </span>
+                    <span className="vendor-card__level-badge">
+                      {profile.level}
+                      <span className="vendor-card__tier" aria-hidden="true">
+                        {Array.from({ length: profile.tier }, (_, i) => (
+                          <Diamond key={i} size={8} fill="currentColor" />
+                        ))}
+                      </span>
+                    </span>
+                    <span className="vendor-card__languages">{profile.languages.join(', ')}</span>
+                  </div>
+                </div>
+
+                <p className="vendor-card__bio">{profile.bio}</p>
+
+                <div className="vendor-card__skills">
+                  {profile.skills.map((skill) => (
+                    <span key={skill} className="vendor-card__skill-chip">{skill}</span>
+                  ))}
+                </div>
+
+                <div className="vendor-card__footer">
+                  <div className="vendor-card__reviews">
+                    <span className="vendor-card__review-count">{profile.reviewCount} Reviews</span>
+                    <span className="vendor-card__rating">
+                      <Star size={13} fill="#f59e0b" stroke="#f59e0b" /> {profile.rating.toFixed(1)}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="vendor-card__btn-profile"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/vendor/${profile.id}`);
+                    }}
+                  >
+                    See profile
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="vendor-directory__footer-cta">
+            <div>
+              <h3 className="vendor-directory__footer-cta-title">Want to grow your business here?</h3>
+              <p className="vendor-directory__footer-cta-subtitle">
+                Apply to list your agency or freelance profile in the YAKKAY AI Line partner directory.
+              </p>
+            </div>
+            <button type="button" className="vendor-directory__footer-cta-btn" onClick={handleApplyToJoin}>
+              Apply to Join <ArrowRight size={14} />
+            </button>
           </div>
         </div>
       </motion.div>

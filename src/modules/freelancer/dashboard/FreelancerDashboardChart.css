@@ -1,0 +1,24 @@
+.fl-chart-wrap {
+  width: 100%;
+}
+
+.fl-chart-tooltip {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  box-shadow: var(--shadow-md);
+}
+
+.fl-chart-tooltip__label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 0 0 2px 0;
+}
+
+.fl-chart-tooltip__value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}

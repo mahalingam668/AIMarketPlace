@@ -127,7 +127,7 @@
   white-space: nowrap;
 }
 
-/* ─── CRM Group (dynamic, theme-aware) ──── */
+/* ─── Nav Groups (shared by every portal — CRM, Freelancer, ...) ──── */
 
 .sidebar__group {
   display: flex;
@@ -139,11 +139,11 @@
 }
 
 .sidebar__group-header.sidebar__nav-item--active {
-  color: var(--crm-accent, var(--accent-primary));
+  color: var(--sidebar-group-accent, var(--accent-primary));
 }
 
 .sidebar__group-header.sidebar__nav-item--active::before {
-  background: var(--crm-accent, var(--accent-primary));
+  background: var(--sidebar-group-accent, var(--accent-primary));
 }
 
 .sidebar__group-chevron {
@@ -171,11 +171,11 @@
 }
 
 .sidebar__group-child.sidebar__nav-item--active {
-  color: var(--crm-accent, var(--accent-primary));
+  color: var(--sidebar-group-accent, var(--accent-primary));
 }
 
 .sidebar__group-child.sidebar__nav-item--active::before {
-  background: var(--crm-accent, var(--accent-primary));
+  background: var(--sidebar-group-accent, var(--accent-primary));
 }
 
 .sidebar__badge {
@@ -184,7 +184,7 @@
   height: 18px;
   padding: 0 5px;
   border-radius: 20px;
-  background: var(--crm-accent, var(--accent-primary));
+  background: var(--sidebar-group-accent, var(--accent-primary));
   color: #ffffff;
   font-size: 10px;
   font-weight: 700;

@@ -295,7 +295,6 @@ export const MEGA_MENU_SECTIONS: MegaMenuSection[] = [
 ];
 
 interface MegaMenuProps {
-  activeKey: string;
   onNavigate: () => void;
 }
 
@@ -327,9 +326,13 @@ const flipVariants = {
   exit: (dir: number) => ({ opacity: 0, rotateX: dir >= 0 ? 10 : -10, y: dir >= 0 ? 8 : -8 }),
 };
 
-function MegaMenu({ activeKey, onNavigate }: MegaMenuProps) {
+function MegaMenu({ onNavigate }: MegaMenuProps) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  // A single "Explore" trigger now opens this whole menu, so section
+  // switching (previously done by hovering one of six separate top-level
+  // nav buttons) happens via the tab row rendered inside the panel below.
+  const [activeKey, setActiveKey] = useState(MEGA_MENU_SECTIONS[0].key);
   const section = MEGA_MENU_SECTIONS.find((s) => s.key === activeKey);
   const prevIndexRef = useRef(0);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -375,17 +378,33 @@ function MegaMenu({ activeKey, onNavigate }: MegaMenuProps) {
 
   return (
     <div className="mega-menu__perspective">
-      <AnimatePresence mode="wait" custom={direction}>
-        <motion.div
-          key={section.key}
-          className="mega-menu"
-          custom={direction}
-          variants={flipVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-        >
+      <div className="mega-menu">
+        <div className="mega-menu__tabs" role="tablist" aria-label="Explore sections">
+          {MEGA_MENU_SECTIONS.map((s) => (
+            <button
+              key={s.key}
+              type="button"
+              role="tab"
+              aria-selected={s.key === activeKey}
+              className={`mega-menu__tab ${s.key === activeKey ? 'mega-menu__tab--active' : ''}`}
+              onClick={() => setActiveKey(s.key)}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={section.key}
+            className="mega-menu__content"
+            custom={direction}
+            variants={flipVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+          >
           <div className="mega-menu__body">
             <motion.div className="mega-menu__columns" variants={columnVariants} initial="hidden" animate="visible">
               {section.columns.map((col) => (
@@ -531,8 +550,9 @@ function MegaMenu({ activeKey, onNavigate }: MegaMenuProps) {
               Browse all in {section.label} <ArrowRight size={12} />
             </button>
           </div>
-        </motion.div>
-      </AnimatePresence>
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

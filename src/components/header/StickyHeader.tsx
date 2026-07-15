@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { Sparkles, Bell, Sun, Moon, ChevronDown, LayoutDashboard, Settings, LogOut, Rocket } from 'lucide-react';
+import { Sparkles, Bell, Sun, Moon, ChevronDown, LayoutDashboard, Settings, LogOut } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { setSearch } from '../../store/slices/toolsSlice';
 import { setTheme } from '../../store/slices/uiSlice';
 import { logout } from '../../store/slices/authSlice';
 import SearchBar from './SearchBar';
-import MegaMenu, { MEGA_MENU_SECTIONS } from './MegaMenu';
+import MegaMenu from './MegaMenu';
 import './StickyHeader.css';
 
 function StickyHeader() {
@@ -18,7 +17,9 @@ function StickyHeader() {
   const searchValue = useAppSelector((s) => s.tools.filters.search);
   const { isAuthenticated, user } = useAppSelector((s) => s.auth);
 
-  const [activeSection, setActiveSection] = useState<string | null>(null);
+  // A single "Explore" trigger now opens the mega menu — section switching
+  // happens via the tab row inside MegaMenu itself.
+  const [isExploreOpen, setIsExploreOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -28,16 +29,16 @@ function StickyHeader() {
     if (closeTimer.current) clearTimeout(closeTimer.current);
   };
 
-  // Hover-to-open (Azure / Microsoft Learn style) with short debounces so a
-  // quick mouse pass across the nav doesn't flicker every panel open/closed.
-  const handleTriggerEnter = (key: string) => {
+  // Hover-to-open (Azure / Microsoft Learn style) with a short debounce so a
+  // quick mouse pass across the nav doesn't flicker the panel open.
+  const handleTriggerEnter = () => {
     clearTimers();
-    openTimer.current = setTimeout(() => setActiveSection(key), 90);
+    openTimer.current = setTimeout(() => setIsExploreOpen(true), 90);
   };
 
   const handleAreaLeave = () => {
     clearTimers();
-    closeTimer.current = setTimeout(() => setActiveSection(null), 200);
+    closeTimer.current = setTimeout(() => setIsExploreOpen(false), 200);
   };
 
   const handleAreaEnter = () => {
@@ -47,12 +48,12 @@ function StickyHeader() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setActiveSection(null);
+        setIsExploreOpen(false);
       }
     };
-    if (activeSection) document.addEventListener('mousedown', handleClickOutside);
+    if (isExploreOpen) document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [activeSection]);
+  }, [isExploreOpen]);
 
   useEffect(() => clearTimers, []);
 
@@ -72,26 +73,16 @@ function StickyHeader() {
         </div>
 
         <nav className="sticky-header__nav">
-          {MEGA_MENU_SECTIONS.map((section) => (
-            <button
-              key={section.key}
-              type="button"
-              className={`sticky-header__nav-link ${activeSection === section.key ? 'sticky-header__nav-link--active' : ''}`}
-              onMouseEnter={() => handleTriggerEnter(section.key)}
-              onClick={() => setActiveSection((cur) => (cur === section.key ? null : section.key))}
-              aria-expanded={activeSection === section.key}
-            >
-              {section.label}
-              <ChevronDown size={13} className={activeSection === section.key ? 'sticky-header__chevron--open' : ''} />
-              {activeSection === section.key && (
-                <motion.span
-                  className="sticky-header__nav-indicator"
-                  layoutId="sticky-header-nav-indicator"
-                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                />
-              )}
-            </button>
-          ))}
+          <button
+            type="button"
+            className={`sticky-header__nav-link ${isExploreOpen ? 'sticky-header__nav-link--active' : ''}`}
+            onMouseEnter={handleTriggerEnter}
+            onClick={() => setIsExploreOpen((cur) => !cur)}
+            aria-expanded={isExploreOpen}
+          >
+            Explore
+            <ChevronDown size={13} className={isExploreOpen ? 'sticky-header__chevron--open' : ''} />
+          </button>
           <button type="button" className="sticky-header__nav-link" onClick={() => navigate('/pricing')}>
             Pricing
           </button>
@@ -111,9 +102,15 @@ function StickyHeader() {
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
-          <button type="button" className="sticky-header__icon-btn" aria-label="Notifications">
-            <Bell size={18} />
-            <span className="sticky-header__notification-dot" />
+          {isAuthenticated && (
+            <button type="button" className="sticky-header__icon-btn" aria-label="Notifications">
+              <Bell size={18} />
+              <span className="sticky-header__notification-dot" />
+            </button>
+          )}
+
+          <button type="button" className="sticky-header__seller-link" onClick={() => navigate('/freelancer')}>
+            Become a Seller
           </button>
 
           {isAuthenticated ? (
@@ -150,19 +147,19 @@ function StickyHeader() {
               </DropdownMenu.Portal>
             </DropdownMenu.Root>
           ) : (
-            <button type="button" className="sticky-header__login-btn" onClick={() => navigate('/login')}>
-              Log In
-            </button>
+            <>
+              <button type="button" className="sticky-header__login-btn" onClick={() => navigate('/login')}>
+                Sign in
+              </button>
+              <button type="button" className="sticky-header__join-btn" onClick={() => navigate('/register')}>
+                Join
+              </button>
+            </>
           )}
-
-          <button type="button" className="sticky-header__demo-btn" onClick={() => navigate('/request-demo')}>
-            <Rocket size={14} />
-            Request Demo
-          </button>
         </div>
       </div>
 
-      {activeSection && <MegaMenu activeKey={activeSection} onNavigate={() => setActiveSection(null)} />}
+      {isExploreOpen && <MegaMenu onNavigate={() => setIsExploreOpen(false)} />}
     </header>
   );
 }
