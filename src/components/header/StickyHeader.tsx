@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { Sparkles, Bell, Sun, Moon, ChevronDown, LayoutDashboard, Settings, LogOut } from 'lucide-react';
+import { Sparkles, Bell, Sun, Moon, ChevronDown, LayoutDashboard, Settings, LogOut, Menu, X, Store } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { setSearch } from '../../store/slices/toolsSlice';
 import { setTheme } from '../../store/slices/uiSlice';
@@ -20,6 +20,7 @@ function StickyHeader() {
   // A single "Explore" trigger now opens the mega menu — section switching
   // happens via the tab row inside MegaMenu itself.
   const [isExploreOpen, setIsExploreOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -49,11 +50,12 @@ function StickyHeader() {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsExploreOpen(false);
+        setIsMobileMenuOpen(false);
       }
     };
-    if (isExploreOpen) document.addEventListener('mousedown', handleClickOutside);
+    if (isExploreOpen || isMobileMenuOpen) document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isExploreOpen]);
+  }, [isExploreOpen, isMobileMenuOpen]);
 
   useEffect(() => clearTimers, []);
 
@@ -93,6 +95,19 @@ function StickyHeader() {
         </div>
 
         <div className="sticky-header__actions">
+          <button
+            type="button"
+            className="sticky-header__icon-btn sticky-header__mobile-toggle"
+            onClick={() => {
+              setIsExploreOpen(false);
+              setIsMobileMenuOpen((cur) => !cur);
+            }}
+            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMobileMenuOpen}
+          >
+            {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+
           <button
             type="button"
             className="sticky-header__icon-btn"
@@ -160,6 +175,33 @@ function StickyHeader() {
       </div>
 
       {isExploreOpen && <MegaMenu onNavigate={() => setIsExploreOpen(false)} />}
+
+      {isMobileMenuOpen && (
+        <div className="sticky-header__mobile-panel">
+          <SearchBar value={searchValue} onChange={(v) => dispatch(setSearch(v))} onSubmit={(v) => { handleSearchSubmit(v); setIsMobileMenuOpen(false); }} />
+          <button
+            type="button"
+            className="sticky-header__mobile-link"
+            onClick={() => { navigate('/browse'); setIsMobileMenuOpen(false); }}
+          >
+            Explore
+          </button>
+          <button
+            type="button"
+            className="sticky-header__mobile-link"
+            onClick={() => { navigate('/pricing'); setIsMobileMenuOpen(false); }}
+          >
+            Pricing
+          </button>
+          <button
+            type="button"
+            className="sticky-header__mobile-link"
+            onClick={() => { navigate('/freelancer'); setIsMobileMenuOpen(false); }}
+          >
+            <Store size={15} /> Become a Seller
+          </button>
+        </div>
+      )}
     </header>
   );
 }

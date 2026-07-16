@@ -186,6 +186,12 @@ function Home() {
         })}
       </motion.section>
 
+      <div className="home__guest-dashboard-cta">
+        <button type="button" className="home__section-link" onClick={() => navigate('/guest/dashboard')}>
+          Preview the dashboard <ArrowRight size={14} />
+        </button>
+      </div>
+
       {/* Featured solutions — gig-card style */}
       <motion.section
         className="home__section"

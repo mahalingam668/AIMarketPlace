@@ -6,6 +6,8 @@ export interface RoleContextValue {
   setRole: (role: CrmRole) => void;
   permissions: CrmPermissions;
   hasPermission: (key: keyof CrmPermissions) => boolean;
+  /** CRM roles the current account is allowed to preview — the switcher must not offer more than this. */
+  availableRoles: CrmRole[];
 }
 
 export const RoleContext = createContext<RoleContextValue | null>(null);

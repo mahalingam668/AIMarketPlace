@@ -32,6 +32,7 @@ import Badge from '../components/ui/Badge';
 import { useAppDispatch, useAppSelector } from '../store';
 import { toggleFavorite } from '../store/slices/toolsSlice';
 import { aiTools } from '../data/mockData';
+import { VENDOR_PROFILES } from '../data/vendorProfiles';
 import type { AITool } from '../types';
 import './Favorites.css';
 
@@ -91,6 +92,13 @@ function Favorites() {
     [favoriteIds]
   );
 
+  const favoriteVendors = useMemo(
+    () => favoriteIds.map((id) => VENDOR_PROFILES.find((v) => v.id === id)).filter((v): v is (typeof VENDOR_PROFILES)[number] => Boolean(v)),
+    [favoriteIds]
+  );
+
+  const totalFavorites = favoriteTools.length + favoriteVendors.length;
+
   return (
     <motion.div
       className="favorites"
@@ -101,15 +109,15 @@ function Favorites() {
       <div className="favorites__header">
         <div>
           <h1>Your Favorites</h1>
-          <p>AI tools you've starred for quick access</p>
+          <p>AI tools and vendor profiles you've starred for quick access</p>
         </div>
         <span className="favorites__count">
           <Heart size={12} fill="currentColor" />
-          {favoriteTools.length} saved
+          {totalFavorites} saved
         </span>
       </div>
 
-      {favoriteTools.length === 0 ? (
+      {totalFavorites === 0 ? (
         <motion.div
           className="favorites__empty"
           initial={{ opacity: 0, y: 10 }}
@@ -120,7 +128,7 @@ function Favorites() {
             <HeartOff size={30} />
           </div>
           <h3>No favorites yet</h3>
-          <p>Tap the heart on any tool's detail page to save it here for quick access later.</p>
+          <p>Tap the heart on any tool or vendor's detail page to save it here for quick access later.</p>
           <button type="button" className="favorites__browse-btn" onClick={() => navigate('/browse')}>
             <Compass size={16} />
             Browse AI Tools
@@ -187,6 +195,52 @@ function Favorites() {
 
                   <div className="favorites__card-view">
                     View details <ArrowRight size={13} />
+                  </div>
+                </motion.div>
+              );
+            })}
+
+            {favoriteVendors.map((vendor) => {
+              const VendorIcon = vendor.bannerIcon;
+              return (
+                <motion.div
+                  key={vendor.id}
+                  layout
+                  variants={cardVariants}
+                  exit="exit"
+                  className="favorites__card"
+                  onClick={() => navigate(`/vendor/${vendor.id}`)}
+                >
+                  <button
+                    type="button"
+                    className="favorites__unfav-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      dispatch(toggleFavorite(vendor.id));
+                    }}
+                    aria-label={`Remove ${vendor.name} from favorites`}
+                  >
+                    <Heart size={16} fill="#a78bfa" stroke="#a78bfa" />
+                  </button>
+
+                  <div className="favorites__card-icon" style={{ background: `${vendor.avatarColor}18`, color: vendor.avatarColor }}>
+                    <VendorIcon size={24} />
+                  </div>
+
+                  <h3 className="favorites__card-name">{vendor.name}</h3>
+                  <p className="favorites__card-company">{vendor.title}</p>
+                  <p className="favorites__card-desc">{vendor.bio}</p>
+
+                  <div className="favorites__card-footer">
+                    <div className="favorites__card-rating">
+                      <Star size={12} fill="#f59e0b" stroke="#f59e0b" />
+                      <span>{vendor.rating.toFixed(1)}</span>
+                    </div>
+                    <span className="favorites__card-price">{vendor.startingPrice}</span>
+                  </div>
+
+                  <div className="favorites__card-view">
+                    View profile <ArrowRight size={13} />
                   </div>
                 </motion.div>
               );

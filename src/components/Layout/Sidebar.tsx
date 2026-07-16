@@ -21,6 +21,7 @@ import { toggleSidebar, setActivePage } from '../../store/slices/uiSlice';
 import { useVisibleCrmMenu } from '../../hooks/useVisibleCrmMenu';
 import { useCrmTheme } from '../../hooks/useCrmTheme';
 import { resolveCrmIcon } from '../../modules/crm/components/crmIcons';
+import { canAccess } from '../../modules/auth/roles';
 import SidebarNavGroup from './SidebarNavGroup';
 import type { SidebarNavGroupItem } from './SidebarNavGroup';
 import './Sidebar.css';
@@ -52,11 +53,11 @@ const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const authUser = useAppSelector((s) => s.auth.user);
-  const isAdmin = authUser?.role === 'Admin';
+  const role = authUser?.role ?? 'Guest';
   const crmMenuGroups = useVisibleCrmMenu();
   const { theme: crmTheme } = useCrmTheme();
 
-  const visibleNavItems = isAdmin
+  const visibleNavItems = canAccess(role, 'admin')
     ? [...navItems, { icon: ShieldCheck, label: 'Admin', path: '/admin' }]
     : navItems;
 
@@ -129,29 +130,32 @@ const Sidebar: React.FC = () => {
           );
         })}
 
-        <SidebarNavGroup
-          label="Freelancer"
-          icon={Briefcase}
-          items={FREELANCER_NAV_ITEMS}
-          collapsed={collapsed}
-        />
-
-        {crmMenuGroups.map((group) => (
+        {canAccess(role, 'freelancer') && (
           <SidebarNavGroup
-            key={group.id}
-            label={group.name}
-            icon={resolveCrmIcon(group.icon)}
+            label="Freelancer"
+            icon={Briefcase}
+            items={FREELANCER_NAV_ITEMS}
             collapsed={collapsed}
-            accentColor={crmTheme.primaryColor}
-            items={group.children.map((child) => ({
-              id: child.id,
-              label: child.name,
-              path: child.path,
-              icon: resolveCrmIcon(child.icon),
-              badgeCount: child.badgeCount,
-            }))}
           />
-        ))}
+        )}
+
+        {canAccess(role, 'crm') &&
+          crmMenuGroups.map((group) => (
+            <SidebarNavGroup
+              key={group.id}
+              label={group.name}
+              icon={resolveCrmIcon(group.icon)}
+              collapsed={collapsed}
+              accentColor={crmTheme.primaryColor}
+              items={group.children.map((child) => ({
+                id: child.id,
+                label: child.name,
+                path: child.path,
+                icon: resolveCrmIcon(child.icon),
+                badgeCount: child.badgeCount,
+              }))}
+            />
+          ))}
       </nav>
 
       {/* Collapse Toggle */}
@@ -183,7 +187,7 @@ const Sidebar: React.FC = () => {
               <span className="sidebar__user-name">{authUser?.name || 'Guest'}</span>
               <span className="sidebar__user-plan">
                 <Sparkles size={10} />
-                {authUser?.role || 'Member'}
+                {authUser?.role || 'Guest'}
               </span>
             </motion.div>
           )}

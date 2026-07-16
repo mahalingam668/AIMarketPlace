@@ -1,11 +1,34 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Sparkles, Mail, Lock } from 'lucide-react';
+import { Sparkles, Mail, Lock, Building2, Code2, ShieldCheck } from 'lucide-react';
 import { useAppDispatch } from '../../store';
 import { login } from '../../store/slices/authSlice';
+import { ROLE_LANDING_PATH, type AccountRole } from '../../modules/auth/roles';
+import AccountTypePicker, { type AccountTypeOption } from './AccountTypePicker';
 import AuthVisual from './AuthVisual';
 import './Auth.css';
+
+const ACCOUNT_TYPE_OPTIONS: AccountTypeOption[] = [
+  {
+    value: 'Company',
+    label: 'Company',
+    description: 'Manage AI product listings and your team’s CRM.',
+    icon: Building2,
+  },
+  {
+    value: 'Developer',
+    label: 'Developer',
+    description: 'Manage gigs, proposals, and freelance work.',
+    icon: Code2,
+  },
+  {
+    value: 'Admin',
+    label: 'Admin',
+    description: 'Full workspace access and platform administration.',
+    icon: ShieldCheck,
+  },
+];
 
 function Login() {
   const navigate = useNavigate();
@@ -13,12 +36,13 @@ function Login() {
   const dispatch = useAppDispatch();
   const [email, setEmail] = useState('alex.chen@nexusai.com');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState<AccountRole>('Admin');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(login({ name: 'Alex Chen', email, role: 'Admin' }));
-    const from = (location.state as { from?: Location })?.from?.pathname || '/dashboard';
-    navigate(from, { replace: true });
+    dispatch(login({ name: 'Alex Chen', email, role }));
+    const from = (location.state as { from?: Location })?.from?.pathname;
+    navigate(from || ROLE_LANDING_PATH[role], { replace: true });
   };
 
   return (
@@ -31,6 +55,14 @@ function Login() {
           </div>
           <h1 className="auth__title">Welcome back</h1>
           <p className="auth__subtitle">Sign in to your workspace to manage models, governance, and integrations.</p>
+
+          <AccountTypePicker
+            legend="Sign in as"
+            name="loginAccountType"
+            options={ACCOUNT_TYPE_OPTIONS}
+            value={role}
+            onChange={setRole}
+          />
 
           <form className="auth__form" onSubmit={handleSubmit}>
             <label className="auth__field">

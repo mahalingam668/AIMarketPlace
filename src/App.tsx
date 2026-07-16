@@ -20,6 +20,7 @@ import Contact from './pages/Contact';
 import RequestDemo from './pages/RequestDemo';
 
 import Dashboard from './pages/Dashboard';
+import GuestDashboard from './pages/GuestDashboard';
 import Analytics from './pages/Analytics';
 import Favorites from './pages/Favorites';
 import Settings from './pages/Settings';
@@ -80,6 +81,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/request-demo" element={<RequestDemo />} />
+        <Route path="/guest/dashboard" element={<GuestDashboard />} />
 
         {/* Gig marketplace (Phase 1 — read-only browsing) */}
         <Route
@@ -150,43 +152,49 @@ function App() {
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/settings" element={<Settings />} />
 
-            <Route path="/crm" element={<CrmRootLayout />}>
-              <Route index element={<CrmIndexRedirect />} />
-              <Route element={<CrmRoute permission="dashboard" />}>
-                <Route path="dashboard" element={<CrmDashboard />} />
-              </Route>
-              <Route element={<CrmRoute permission="products" />}>
-                <Route path="products" element={<ProductsPage />} />
-              </Route>
-              <Route element={<CrmRoute permission="productDetails" />}>
-                <Route path="products/details" element={<ProductDetailsPage />} />
-                <Route path="products/:id" element={<ProductDetailsPage />} />
-              </Route>
-              <Route element={<CrmRoute permission="pages" />}>
-                <Route path="pages" element={<PagesManagementPage />} />
-                <Route path="pages/view/:pageKey" element={<DynamicPageView />} />
-              </Route>
-              <Route element={<CrmRoute permission="menus" />}>
-                <Route path="menus" element={<MenuManagementPage />} />
-              </Route>
-              <Route element={<CrmRoute permission="settings" />}>
-                <Route path="settings" element={<ThemeSettingsPage />} />
+            {/* Company (vendor/business) workspace — Developer accounts are redirected out */}
+            <Route element={<ProtectedRoute allow={['Company', 'Admin']} />}>
+              <Route path="/crm" element={<CrmRootLayout />}>
+                <Route index element={<CrmIndexRedirect />} />
+                <Route element={<CrmRoute permission="dashboard" />}>
+                  <Route path="dashboard" element={<CrmDashboard />} />
+                </Route>
+                <Route element={<CrmRoute permission="products" />}>
+                  <Route path="products" element={<ProductsPage />} />
+                </Route>
+                <Route element={<CrmRoute permission="productDetails" />}>
+                  <Route path="products/details" element={<ProductDetailsPage />} />
+                  <Route path="products/:id" element={<ProductDetailsPage />} />
+                </Route>
+                <Route element={<CrmRoute permission="pages" />}>
+                  <Route path="pages" element={<PagesManagementPage />} />
+                  <Route path="pages/view/:pageKey" element={<DynamicPageView />} />
+                </Route>
+                <Route element={<CrmRoute permission="menus" />}>
+                  <Route path="menus" element={<MenuManagementPage />} />
+                </Route>
+                <Route element={<CrmRoute permission="settings" />}>
+                  <Route path="settings" element={<ThemeSettingsPage />} />
+                </Route>
               </Route>
             </Route>
 
-            <Route path="/freelancer" element={<FreelancerRootLayout />}>
-              <Route index element={<Navigate to="/freelancer/dashboard" replace />} />
-              <Route path="dashboard" element={<FreelancerDashboard />} />
-              <Route path="profile" element={<FreelancerProfilePage />} />
-              <Route path="gigs" element={<FreelancerGigsPage />} />
-              <Route path="proposals" element={<FreelancerProposalsPage />} />
+            {/* Developer (freelancer) workspace — Company accounts are redirected out */}
+            <Route element={<ProtectedRoute allow={['Developer', 'Admin']} />}>
+              <Route path="/freelancer" element={<FreelancerRootLayout />}>
+                <Route index element={<Navigate to="/freelancer/dashboard" replace />} />
+                <Route path="dashboard" element={<FreelancerDashboard />} />
+                <Route path="profile" element={<FreelancerProfilePage />} />
+                <Route path="gigs" element={<FreelancerGigsPage />} />
+                <Route path="proposals" element={<FreelancerProposalsPage />} />
+              </Route>
             </Route>
           </Route>
         </Route>
       </Route>
 
       {/* Admin-only workspace route */}
-      <Route element={<ProtectedRoute requireRole="Admin" />}>
+      <Route element={<ProtectedRoute allow={['Admin']} />}>
         <Route element={<CrmProviders />}>
           <Route element={<AppLayout />}>
             <Route path="/admin" element={<AdminDashboard />} />

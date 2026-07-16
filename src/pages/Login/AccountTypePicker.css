@@ -1,0 +1,90 @@
+.account-picker {
+  border: none;
+  margin: 0 0 20px;
+  padding: 0;
+}
+
+.account-picker__legend {
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.account-picker__options {
+  display: grid;
+  gap: 10px;
+}
+
+.account-picker__option {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.account-picker__option:hover {
+  border-color: var(--brand-blue);
+}
+
+.account-picker__option:focus-within {
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 3px var(--brand-blue-lt);
+}
+
+.account-picker__option--active {
+  border-color: var(--brand-blue);
+  background: var(--brand-blue-lt);
+}
+
+.account-picker__input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+
+.account-picker__icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-white);
+  color: var(--brand-blue);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-picker__option--active .account-picker__icon {
+  background: var(--brand-blue);
+  color: #fff;
+  border-color: var(--brand-blue);
+}
+
+.account-picker__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.account-picker__label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.account-picker__desc {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.4;
+}

@@ -184,6 +184,12 @@
   color: var(--brand-blue-dk);
 }
 
+.home__guest-dashboard-cta {
+  display: flex;
+  justify-content: center;
+  padding: 0 32px 40px;
+}
+
 /* ----- Category quick-access strip (Fiverr-style icon tiles) ----- */
 .home__category-strip {
   max-width: 1280px;

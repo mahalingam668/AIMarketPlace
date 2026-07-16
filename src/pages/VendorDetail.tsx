@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -14,6 +14,8 @@ import {
   Heart,
 } from 'lucide-react';
 import { getVendorProfileById, getRelatedVendorProfiles } from '../data/vendorProfiles';
+import { useAppDispatch, useAppSelector } from '../store';
+import { toggleFavorite } from '../store/slices/toolsSlice';
 import './VendorDetail.css';
 
 function formatReviewCount(count: number): string {
@@ -23,9 +25,11 @@ function formatReviewCount(count: number): string {
 function VendorDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [isSaved, setIsSaved] = useState(false);
+  const dispatch = useAppDispatch();
+  const favorites = useAppSelector((s) => s.tools.favorites);
 
   const profile = useMemo(() => getVendorProfileById(id ?? ''), [id]);
+  const isSaved = profile ? favorites.includes(profile.id) : false;
   const relatedProfiles = useMemo(() => (profile ? getRelatedVendorProfiles(profile) : []), [profile]);
 
   if (!profile) {
@@ -93,12 +97,12 @@ function VendorDetail() {
               <button
                 type="button"
                 className={`vendor-detail__btn-save ${isSaved ? 'vendor-detail__btn-save--active' : ''}`}
-                onClick={() => setIsSaved((prev) => !prev)}
+                onClick={() => dispatch(toggleFavorite(profile.id))}
                 aria-pressed={isSaved}
               >
                 <Heart size={15} fill={isSaved ? 'currentColor' : 'none'} /> {isSaved ? 'Saved' : 'Save'}
               </button>
-              <button type="button" className="vendor-detail__btn-message">
+              <button type="button" className="vendor-detail__btn-message" onClick={() => navigate('/contact')}>
                 <MessageCircle size={15} /> Message
               </button>
             </div>

@@ -6,6 +6,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { setSearch, toggleCategory, resetFilters } from '../../store/slices/toolsSlice';
 import { setTheme } from '../../store/slices/uiSlice';
+import { logout } from '../../store/slices/authSlice';
 import SearchInput from '../ui/SearchInput';
 import './TopBar.css';
 
@@ -256,6 +257,7 @@ const TopBar: React.FC = () => {
   const collapsed = useAppSelector((s) => s.ui.sidebarCollapsed);
   const searchValue = useAppSelector((s) => s.tools.filters.search);
   const theme = useAppSelector((s) => s.ui.theme);
+  const authUser = useAppSelector((s) => s.auth.user);
   
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [oldMenuOpen, setOldMenuOpen] = useState(false);
@@ -350,6 +352,19 @@ const TopBar: React.FC = () => {
     return list.filter(item => item.type === pill);
   };
 
+  const getInitials = (name: string) =>
+    name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
+
   return (
     <header className={`topbar ${collapsed ? 'topbar--collapsed' : ''}`}>
       <div className="topbar__left">
@@ -441,15 +456,15 @@ const TopBar: React.FC = () => {
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <button type="button" className="topbar__avatar-trigger">
-              <div className="topbar__avatar">AC</div>
+              <div className="topbar__avatar">{getInitials(authUser?.name || 'Guest')}</div>
             </button>
           </DropdownMenu.Trigger>
 
           <DropdownMenu.Portal>
             <DropdownMenu.Content className="topbar__dropdown-content" sideOffset={8} align="end">
               <div className="topbar__dropdown-header">
-                <p className="topbar__dropdown-name">Alex Chen</p>
-                <p className="topbar__dropdown-email">alex.chen@nexusai.com</p>
+                <p className="topbar__dropdown-name">{authUser?.name || 'Guest'}</p>
+                <p className="topbar__dropdown-email">{authUser?.email || ''}</p>
               </div>
 
               <DropdownMenu.Separator className="topbar__dropdown-separator" />
@@ -466,7 +481,7 @@ const TopBar: React.FC = () => {
 
               <DropdownMenu.Separator className="topbar__dropdown-separator" />
 
-              <DropdownMenu.Item className="topbar__dropdown-item topbar__dropdown-item--danger">
+              <DropdownMenu.Item className="topbar__dropdown-item topbar__dropdown-item--danger" onSelect={handleLogout}>
                 <LogOut size={16} />
                 <span>Log Out</span>
               </DropdownMenu.Item>

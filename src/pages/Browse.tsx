@@ -671,7 +671,7 @@ function Browse() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="browse__header">
+        {/* <div className="browse__header">
           <h1>Explore AI Model Marketplace</h1>
           <div className="browse__header-meta">
             <p>Discover, preview, and deploy high-performance models instantly</p>
@@ -706,7 +706,7 @@ function Browse() {
               shortcut="/"
             />
           </div>
-        </div>
+        </div> */}
       </motion.div>
 
       {/* ========================================================
