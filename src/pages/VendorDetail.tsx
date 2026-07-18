@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -12,6 +12,7 @@ import {
   CheckCircle,
   MessageCircle,
   Heart,
+  Film,
 } from 'lucide-react';
 import { getVendorProfileById, getRelatedVendorProfiles } from '../data/vendorProfiles';
 import { useAppDispatch, useAppSelector } from '../store';
@@ -27,10 +28,28 @@ function VendorDetail() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((s) => s.tools.favorites);
+  const [introVideoFailed, setIntroVideoFailed] = useState(false);
+  const [failedPortfolioVideos, setFailedPortfolioVideos] = useState<Set<string>>(new Set());
 
   const profile = useMemo(() => getVendorProfileById(id ?? ''), [id]);
   const isSaved = profile ? favorites.includes(profile.id) : false;
   const relatedProfiles = useMemo(() => (profile ? getRelatedVendorProfiles(profile) : []), [profile]);
+
+  // This page doesn't remount on navigation between profiles (only the :id
+  // param changes), so failed-video state from the previous profile needs
+  // to be reset explicitly rather than persisting onto the next one.
+  useEffect(() => {
+    setIntroVideoFailed(false);
+    setFailedPortfolioVideos(new Set());
+  }, [id]);
+
+  const markPortfolioVideoFailed = (label: string) => {
+    setFailedPortfolioVideos((prev) => {
+      const next = new Set(prev);
+      next.add(label);
+      return next;
+    });
+  };
 
   if (!profile) {
     return (
@@ -132,6 +151,30 @@ function VendorDetail() {
         </div>
       </div>
 
+      {/* Intro Video */}
+      <div className="vendor-detail__section">
+        <h3>Intro Video</h3>
+        {introVideoFailed ? (
+          <div
+            className="vendor-detail__video-fallback vendor-detail__video-fallback--intro"
+            style={{ background: `linear-gradient(135deg, ${profile.avatarColor}33, ${profile.avatarColor}11)` }}
+          >
+            <BannerIcon size={48} strokeWidth={1.25} color={profile.avatarColor} />
+            <span>Video unavailable right now — showing a preview image instead.</span>
+          </div>
+        ) : (
+          <video
+            key={profile.introVideoUrl}
+            className="vendor-detail__intro-video"
+            controls
+            preload="metadata"
+            onError={() => setIntroVideoFailed(true)}
+          >
+            <source src={profile.introVideoUrl} type="video/mp4" />
+          </video>
+        )}
+      </div>
+
       {/* About */}
       <div className="vendor-detail__section">
         <h3>About</h3>
@@ -148,20 +191,38 @@ function VendorDetail() {
         </div>
       </div>
 
-      {/* Portfolio Highlights */}
+      {/* Portfolio Highlights — video gallery, falls back to a static
+          icon tile per-item if that item's clip fails to load */}
       <div className="vendor-detail__section">
-        <h3>Portfolio Highlights</h3>
+        <h3><Film size={16} /> Portfolio Video Gallery</h3>
         <div className="vendor-detail__portfolio-grid">
           {profile.portfolioHighlights.map((item) => {
             const ItemIcon = item.icon;
+            const videoFailed = failedPortfolioVideos.has(item.label);
             return (
-              <div
-                key={item.label}
-                className="vendor-detail__portfolio-card"
-                style={{ background: `linear-gradient(135deg, ${profile.avatarColor}26, ${profile.avatarColor}0d)` }}
-              >
-                <div className="vendor-detail__portfolio-icon" style={{ background: `${profile.avatarColor}22`, color: profile.avatarColor }}>
-                  <ItemIcon size={20} />
+              <div key={item.label} className="vendor-detail__portfolio-card">
+                <div
+                  className="vendor-detail__portfolio-media"
+                  style={{ background: `linear-gradient(135deg, ${profile.avatarColor}26, ${profile.avatarColor}0d)` }}
+                >
+                  {videoFailed ? (
+                    <div className="vendor-detail__portfolio-icon" style={{ background: `${profile.avatarColor}22`, color: profile.avatarColor }}>
+                      <ItemIcon size={20} />
+                    </div>
+                  ) : (
+                    <video
+                      key={item.videoUrl}
+                      className="vendor-detail__portfolio-video"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      preload="metadata"
+                      onError={() => markPortfolioVideoFailed(item.label)}
+                    >
+                      <source src={item.videoUrl} type="video/mp4" />
+                    </video>
+                  )}
                 </div>
                 <h4 className="vendor-detail__portfolio-label">{item.label}</h4>
                 <span className="vendor-detail__portfolio-category">

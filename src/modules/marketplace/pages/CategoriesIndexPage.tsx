@@ -1,13 +1,16 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { aiTools } from '../../../data/mockData';
-import { MARKETPLACE_CATEGORIES, getCategoryCounts } from '../data/categories';
+import { getCategoryCounts, getCategoryStartingPrices } from '../data/categories';
 import { resolveIcon } from '../components/iconMap';
+import { useAppSelector } from '../../../store';
 import './CategoriesIndexPage.css';
 
 function CategoriesIndexPage() {
   const navigate = useNavigate();
+  const categories = useAppSelector((s) => s.categories.categories);
   const counts = useMemo(() => getCategoryCounts(aiTools), []);
+  const startingPrices = useMemo(() => getCategoryStartingPrices(aiTools), []);
 
   return (
     <div className="categories-index">
@@ -17,9 +20,10 @@ function CategoriesIndexPage() {
       </div>
 
       <div className="categories-index__grid">
-        {MARKETPLACE_CATEGORIES.map((category) => {
+        {categories.map((category) => {
           const Icon = resolveIcon(category.icon);
           const count = counts[category.name] || 0;
+          const startingPrice = startingPrices[category.name];
           return (
             <button
               key={category.slug}
@@ -31,7 +35,18 @@ function CategoriesIndexPage() {
                 <Icon size={22} />
               </span>
               <span className="categories-index__name">{category.name}</span>
-              <span className="categories-index__count">{count} {count === 1 ? 'gig' : 'gigs'}</span>
+              <span className="categories-index__desc">{category.description}</span>
+              <span className="categories-index__sub-preview">
+                {category.subCategories.slice(0, 3).map((s) => s.name).join(' · ')}
+              </span>
+              <div className="categories-index__meta-row">
+                <span className="categories-index__count">{count} {count === 1 ? 'gig' : 'gigs'}</span>
+                {startingPrice !== undefined && (
+                  <span className="categories-index__price">
+                    From {startingPrice === 0 ? 'Free' : `$${startingPrice}`}
+                  </span>
+                )}
+              </div>
             </button>
           );
         })}

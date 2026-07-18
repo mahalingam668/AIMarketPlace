@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import type { GigPackage, PackageTier } from '../../modules/marketplace/types/gig.types';
 
 export interface FreelancerProfile {
   displayName: string;
@@ -13,12 +14,33 @@ export interface FreelancerProfile {
 
 export type GigStatus = 'active' | 'paused' | 'draft';
 
+// Same package-tier shape the public marketplace gig pages use (GigPackage) —
+// a developer's gig and what a buyer sees on /gig/:id now describe pricing
+// identically, instead of a flat `price` number that couldn't represent the
+// blueprint's Basic/Standard/Premium packages at all.
+const PACKAGE_TIER_DEFAULTS: Record<PackageTier, { deliveryDays: number; revisions: string }> = {
+  Basic: { deliveryDays: 5, revisions: '1 revision' },
+  Standard: { deliveryDays: 3, revisions: '3 revisions' },
+  Premium: { deliveryDays: 1, revisions: 'Unlimited revisions' },
+};
+
+export function buildGigPackages(category: string, prices: Record<PackageTier, number>): GigPackage[] {
+  return (Object.keys(PACKAGE_TIER_DEFAULTS) as PackageTier[]).map((tier) => ({
+    tier,
+    name: tier,
+    price: prices[tier],
+    deliveryDays: PACKAGE_TIER_DEFAULTS[tier].deliveryDays,
+    revisions: PACKAGE_TIER_DEFAULTS[tier].revisions,
+    features: [`${category || 'Service'} delivery`, PACKAGE_TIER_DEFAULTS[tier].revisions],
+  }));
+}
+
 export interface FreelancerGig {
   id: string;
   title: string;
   category: string;
   status: GigStatus;
-  price: number;
+  packages: GigPackage[];
   impressions: number;
   clicks: number;
   orders: number;
@@ -43,6 +65,16 @@ export interface EarningsPoint {
   earnings: number;
 }
 
+export type PayoutMethod = 'bank' | 'paypal';
+
+export interface PayoutRecord {
+  id: string;
+  amount: number;
+  method: PayoutMethod;
+  status: 'completed' | 'processing';
+  date: string;
+}
+
 interface FreelancerState {
   profile: FreelancerProfile;
   gigs: FreelancerGig[];
@@ -50,6 +82,7 @@ interface FreelancerState {
   earningsHistory: EarningsPoint[];
   walletBalance: number;
   pendingClearance: number;
+  payoutHistory: PayoutRecord[];
 }
 
 const initialState: FreelancerState = {
@@ -69,7 +102,7 @@ const initialState: FreelancerState = {
       title: 'I will build a custom CRM integration for your SaaS product',
       category: 'CRM Integration',
       status: 'active',
-      price: 220,
+      packages: buildGigPackages('CRM Integration', { Basic: 220, Standard: 380, Premium: 650 }),
       impressions: 4820,
       clicks: 312,
       orders: 27,
@@ -80,7 +113,7 @@ const initialState: FreelancerState = {
       title: 'I will build a webhook bridge between two APIs',
       category: 'API Development',
       status: 'active',
-      price: 150,
+      packages: buildGigPackages('API Development', { Basic: 150, Standard: 260, Premium: 420 }),
       impressions: 2960,
       clicks: 198,
       orders: 19,
@@ -91,7 +124,7 @@ const initialState: FreelancerState = {
       title: 'I will sync your ERP orders with any marketplace tool',
       category: 'Operations',
       status: 'paused',
-      price: 340,
+      packages: buildGigPackages('Operations', { Basic: 340, Standard: 560, Premium: 890 }),
       impressions: 1140,
       clicks: 64,
       orders: 6,
@@ -102,7 +135,7 @@ const initialState: FreelancerState = {
       title: 'I will connect your support desk to Slack and email alerts',
       category: 'Customer Service',
       status: 'draft',
-      price: 120,
+      packages: buildGigPackages('Customer Service', { Basic: 120, Standard: 200, Premium: 320 }),
       impressions: 0,
       clicks: 0,
       orders: 0,
@@ -161,6 +194,12 @@ const initialState: FreelancerState = {
   ],
   walletBalance: 4260,
   pendingClearance: 1180,
+  payoutHistory: [
+    { id: 'payout-1', amount: 2200, method: 'bank', status: 'completed', date: '2026-06-28' },
+    { id: 'payout-2', amount: 1450, method: 'paypal', status: 'completed', date: '2026-05-30' },
+    { id: 'payout-3', amount: 1900, method: 'bank', status: 'completed', date: '2026-04-25' },
+    { id: 'payout-4', amount: 600, method: 'paypal', status: 'processing', date: '2026-07-10' },
+  ],
 };
 
 const freelancerSlice = createSlice({
@@ -184,8 +223,20 @@ const freelancerSlice = createSlice({
     deleteGig(state, action: PayloadAction<string>) {
       state.gigs = state.gigs.filter((g) => g.id !== action.payload);
     },
+    requestWithdrawal(state, action: PayloadAction<{ amount: number; method: PayoutMethod }>) {
+      const { amount, method } = action.payload;
+      if (amount <= 0 || amount > state.walletBalance) return;
+      state.walletBalance -= amount;
+      state.payoutHistory.unshift({
+        id: `payout-${Date.now()}`,
+        amount,
+        method,
+        status: 'processing',
+        date: new Date().toISOString().slice(0, 10),
+      });
+    },
   },
 });
 
-export const { updateProfile, addGig, updateGig, updateGigStatus, deleteGig } = freelancerSlice.actions;
+export const { updateProfile, addGig, updateGig, updateGigStatus, deleteGig, requestWithdrawal } = freelancerSlice.actions;
 export default freelancerSlice.reducer;

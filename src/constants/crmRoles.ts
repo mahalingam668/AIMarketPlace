@@ -11,6 +11,7 @@ export interface CrmPermissions {
   pages: boolean;
   menus: boolean;
   settings: boolean;
+  projects: boolean;
   /** When true, mutation actions (edit/delete/save) render disabled across the module. */
   readOnly: boolean;
 }
@@ -25,6 +26,7 @@ export const CRM_ROLE_PERMISSIONS: Record<CrmRole, CrmPermissions> = {
     pages: true,
     menus: true,
     settings: true,
+    projects: true,
     readOnly: false,
   },
   Admin: {
@@ -34,6 +36,7 @@ export const CRM_ROLE_PERMISSIONS: Record<CrmRole, CrmPermissions> = {
     pages: true,
     menus: false,
     settings: true,
+    projects: true,
     readOnly: false,
   },
   'Product Manager': {
@@ -43,6 +46,7 @@ export const CRM_ROLE_PERMISSIONS: Record<CrmRole, CrmPermissions> = {
     pages: false,
     menus: false,
     settings: false,
+    projects: true,
     readOnly: false,
   },
   'Content Manager': {
@@ -52,6 +56,7 @@ export const CRM_ROLE_PERMISSIONS: Record<CrmRole, CrmPermissions> = {
     pages: true,
     menus: false,
     settings: false,
+    projects: false,
     readOnly: false,
   },
   Viewer: {
@@ -61,6 +66,7 @@ export const CRM_ROLE_PERMISSIONS: Record<CrmRole, CrmPermissions> = {
     pages: true,
     menus: false,
     settings: false,
+    projects: true,
     readOnly: true,
   },
 };

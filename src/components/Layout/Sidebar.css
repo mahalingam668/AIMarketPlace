@@ -273,3 +273,26 @@
   color: var(--text-accent);
   line-height: 1.2;
 }
+
+/* ─── Responsive ─────────────────────────
+   AppLayout.css already forces the content area's margin-left to
+   var(--sidebar-collapsed) at max-width: 768px regardless of the manual
+   expand/collapse toggle (a Redux-driven state, not viewport-driven).
+   Without this block, an "expanded" sidebar on a narrow viewport would
+   still render at full var(--sidebar-width) and visually overlap the
+   content area, which already assumes the narrower collapsed width.
+   Matching AppLayout's 768px breakpoint (rather than the 900/640
+   convention used elsewhere) keeps the two files in sync. */
+@media (max-width: 768px) {
+  .sidebar {
+    width: var(--sidebar-collapsed);
+  }
+
+  .sidebar__logo-text,
+  .sidebar__nav-label,
+  .sidebar__group-chevron,
+  .sidebar__user-info,
+  .sidebar__badge {
+    display: none;
+  }
+}

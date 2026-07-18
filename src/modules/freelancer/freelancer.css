@@ -244,6 +244,16 @@
   color: var(--error);
 }
 
+.fl-status-pill--completed {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--accent-success, #10b981);
+}
+
+.fl-status-pill--processing {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+}
+
 /* ----- Tabs ----- */
 .fl-tabs {
   display: flex;
@@ -342,6 +352,17 @@
   gap: 6px;
 }
 
+/* ----- Inline note (earnings breakdown context) ----- */
+.fl-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-top: -6px;
+}
+
 /* ----- Search bar ----- */
 .fl-search {
   display: flex;
@@ -431,6 +452,7 @@
 }
 
 .fl-form-field input,
+.fl-form-field select,
 .fl-form-field textarea {
   font-family: var(--font-sans);
   font-size: 13px;
@@ -444,14 +466,24 @@
 }
 
 .fl-form-field input:focus,
+.fl-form-field select:focus,
 .fl-form-field textarea:focus {
   border-color: var(--brand-blue);
+}
+
+.fl-form-field select {
+  cursor: pointer;
 }
 
 .fl-form-field textarea {
   resize: vertical;
   min-height: 90px;
   font-family: var(--font-sans);
+}
+
+.fl-form-field__hint {
+  font-size: 11px;
+  color: var(--text-muted);
 }
 
 .fl-form-field__error {

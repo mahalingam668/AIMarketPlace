@@ -147,3 +147,51 @@
   color: var(--brand-blue);
   font-weight: 600;
 }
+
+.auth__mode-toggle {
+  margin-top: 14px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brand-blue);
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+}
+
+.auth__mode-toggle:hover {
+  text-decoration: underline;
+}
+
+.auth__admin-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--brand-blue-lt);
+  color: var(--brand-blue-dk);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.auth__field-error {
+  color: var(--error, #dc2626);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.auth__pending-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--brand-blue-lt);
+  color: var(--brand-blue-dk);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 12px;
+  margin-bottom: 16px;
+}

@@ -2,7 +2,10 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
-  padding-bottom: 64px;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
 }
 
 .gig-details__loading {
@@ -240,6 +243,9 @@
 }
 
 @media (max-width: 900px) {
+  .gig-details {
+    padding: 24px 24px 48px;
+  }
   .gig-details__layout {
     grid-template-columns: 1fr;
   }
@@ -250,5 +256,14 @@
     flex-direction: column;
     align-items: flex-start;
     text-align: left;
+  }
+}
+
+@media (max-width: 640px) {
+  .gig-details {
+    padding: 20px 16px 40px;
+  }
+  .gig-details__hero {
+    padding: 24px 20px;
   }
 }

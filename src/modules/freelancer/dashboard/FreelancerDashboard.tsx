@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -54,10 +53,6 @@ function FreelancerDashboard() {
   const thisMonthEarnings = earningsHistory[earningsHistory.length - 1]?.earnings ?? 0;
   const recentGigs = useMemo(() => [...gigs].slice(0, 3), [gigs]);
   const recentProposals = useMemo(() => [...proposals].slice(0, 3), [proposals]);
-
-  const handleWithdraw = () => {
-    toast.success(`Withdrawal request for ${formatCurrency(walletBalance)} submitted.`);
-  };
 
   return (
     <div>
@@ -126,7 +121,7 @@ function FreelancerDashboard() {
                 <p className="fl-list-item__meta">Find projects to submit proposals to</p>
               </div>
             </button>
-            <button type="button" className="fl-list-item" style={{ cursor: 'pointer', width: '100%', background: 'none', border: 'none', textAlign: 'left' }} onClick={handleWithdraw}>
+            <button type="button" className="fl-list-item" style={{ cursor: 'pointer', width: '100%', background: 'none', border: 'none', textAlign: 'left' }} onClick={() => navigate('/freelancer/earnings')}>
               <Banknote size={16} />
               <div>
                 <p className="fl-list-item__title">Withdraw earnings</p>

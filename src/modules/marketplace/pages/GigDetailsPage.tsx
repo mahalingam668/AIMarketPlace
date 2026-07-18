@@ -1,10 +1,14 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import * as Accordion from '@radix-ui/react-accordion';
+import { toast } from 'react-hot-toast';
 import { ArrowLeft, Star, ChevronDown, HelpCircle, SearchX } from 'lucide-react';
 import { useGig } from '../hooks/useGig';
 import { useRelatedGigs } from '../hooks/useRelatedGigs';
 import { getVendorProfileById } from '../../../data/vendorProfiles';
 import { resolveIcon } from '../components/iconMap';
+import { useAppSelector } from '../../../store';
+import { savePendingGigSelection } from '../utils/pendingGigSelection';
+import type { GigPackage } from '../types/gig.types';
 import GigGallery from '../components/GigGallery';
 import PackageTable from '../components/PackageTable';
 import ReviewList from '../components/ReviewList';
@@ -17,6 +21,7 @@ function GigDetailsPage() {
   const navigate = useNavigate();
   const { data: gig, isLoading } = useGig(id);
   const { data: relatedGigs } = useRelatedGigs(gig);
+  const { isAuthenticated, user } = useAppSelector((s) => s.auth);
 
   if (isLoading) {
     return <div className="gig-details__loading" aria-busy="true" />;
@@ -28,12 +33,32 @@ function GigDetailsPage() {
         <SearchX size={28} />
         <h2>Gig not found</h2>
         <p>The gig you're looking for doesn't exist or has been removed.</p>
-        <button type="button" className="gig-details__empty-btn" onClick={() => navigate('/browse')}>
+        <button type="button" className="gig-details__empty-btn" onClick={() => navigate('/categories')}>
           Back to Marketplace
         </button>
       </div>
     );
   }
+
+  // Implements the visitor decision point (blueprint §2.2 step 5): a guest
+  // selecting a package is prompted to sign up as a company, with their
+  // intent preserved across the redirect (see pendingGigSelection.ts).
+  const handleSelectPackage = (pkg: GigPackage) => {
+    if (!isAuthenticated || !user) {
+      savePendingGigSelection({ gigId: gig.id, gigName: gig.name, tier: pkg.tier });
+      navigate('/register', { state: { role: 'Company' } });
+      return;
+    }
+
+    if (user.role === 'Developer') {
+      toast.error('Sign in as a company to order services.');
+      return;
+    }
+
+    // Real order placement/escrow isn't built yet — this is intentionally a
+    // lightweight confirmation rather than a fabricated order record.
+    toast.success(`${pkg.tier} package request sent to ${gig.company}. Full order tracking is coming soon.`);
+  };
 
   const seller = getVendorProfileById(gig.sellerId);
   const HeroIcon = resolveIcon(gig.icon);
@@ -78,7 +103,7 @@ function GigDetailsPage() {
 
           <section className="gig-details__section">
             <h2>Packages</h2>
-            <PackageTable packages={gig.packages} />
+            <PackageTable packages={gig.packages} onSelect={handleSelectPackage} />
           </section>
 
           <section className="gig-details__section">

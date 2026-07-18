@@ -1,0 +1,224 @@
+.how-it-works {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 56px 32px 64px;
+}
+
+.how-it-works__hero {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.how-it-works__eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--brand-blue);
+}
+
+.how-it-works__hero h1 {
+  font-size: 2.25rem;
+  max-width: 680px;
+}
+
+.how-it-works__hero p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  max-width: 620px;
+  line-height: 1.6;
+}
+
+.how-it-works__track {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.how-it-works__track-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.how-it-works__track-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 4px;
+}
+
+.how-it-works__track-tag--buy {
+  background: var(--brand-blue-lt);
+  color: var(--brand-blue);
+}
+
+.how-it-works__track-tag--sell {
+  background: rgba(22, 163, 74, 0.12);
+  color: var(--success);
+}
+
+.how-it-works__track-header h2 {
+  font-size: 22px;
+  margin: 0;
+}
+
+.how-it-works__track-header p {
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: 520px;
+  margin: 0;
+}
+
+.how-it-works__steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.how-it-works__step {
+  position: relative;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 22px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.how-it-works__step-number {
+  position: absolute;
+  top: -12px;
+  right: 16px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--brand-blue);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.how-it-works__step-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  background: var(--brand-blue-lt);
+  color: var(--brand-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.how-it-works__step h4 {
+  font-size: 14px;
+  margin: 4px 0 0 0;
+}
+
+.how-it-works__step p {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.how-it-works__cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 28px 32px;
+}
+
+.how-it-works__cta h3 {
+  font-size: 18px;
+  margin: 0 0 4px 0;
+}
+
+.how-it-works__cta p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.how-it-works__cta-actions {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.how-it-works__cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: var(--radius-sm);
+  background: var(--brand-blue);
+  border: 1px solid var(--brand-blue);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.how-it-works__cta-btn:hover {
+  background: var(--brand-blue-dk);
+}
+
+.how-it-works__cta-btn--outline {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+
+.how-it-works__cta-btn--outline:hover {
+  border-color: var(--brand-blue);
+  color: var(--brand-blue);
+}
+
+@media (max-width: 900px) {
+  .how-it-works__steps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .how-it-works__steps {
+    grid-template-columns: 1fr;
+  }
+
+  .how-it-works__cta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .how-it-works__cta-actions {
+    width: 100%;
+  }
+
+  .how-it-works__cta-btn {
+    flex: 1;
+    justify-content: center;
+  }
+}

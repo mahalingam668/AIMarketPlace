@@ -188,6 +188,11 @@
 @media (max-width: 768px) {
   .topbar {
     padding: 0 16px;
+    /* Sidebar.css forces the sidebar to var(--sidebar-collapsed) width at
+       this same breakpoint regardless of the manual collapse toggle, so
+       the topbar's offset must follow suit or it renders shifted right
+       with most of its content pushed off-screen. */
+    left: var(--sidebar-collapsed);
   }
   .topbar__center {
     display: none;

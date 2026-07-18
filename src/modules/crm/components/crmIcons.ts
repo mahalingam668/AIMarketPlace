@@ -46,6 +46,7 @@ import {
   Activity,
   TrendingUp,
   PieChart,
+  ClipboardList,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -97,6 +98,7 @@ export const CRM_ICON_MAP: Record<string, LucideIcon> = {
   Activity,
   TrendingUp,
   PieChart,
+  ClipboardList,
 };
 
 export function resolveCrmIcon(name: string | undefined): LucideIcon {

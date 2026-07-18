@@ -38,6 +38,7 @@ export const DEFAULT_MENU_CONFIG: MenuGroup[] = [
     permissionKey: 'dashboard',
     children: [
       { id: 'crm-dashboard', name: 'Dashboard', path: '/crm/dashboard', icon: 'LayoutDashboard', permissionKey: 'dashboard' },
+      { id: 'crm-projects', name: 'Post a Project', path: '/crm/projects', icon: 'ClipboardList', permissionKey: 'projects' },
       { id: 'crm-products', name: 'Products', path: '/crm/products', icon: 'Package', permissionKey: 'products', badgeKey: 'products' },
       { id: 'crm-product-details', name: 'Product Details', path: '/crm/products/details', icon: 'PackageSearch', permissionKey: 'productDetails' },
       { id: 'crm-pages', name: 'Pages', path: '/crm/pages', icon: 'FileStack', permissionKey: 'pages', badgeKey: 'pages' },

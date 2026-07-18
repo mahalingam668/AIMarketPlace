@@ -854,6 +854,7 @@
 
 .crm-form-field input[type="text"],
 .crm-form-field input[type="number"],
+.crm-form-field input[type="date"],
 .crm-form-field textarea,
 .crm-form-field select {
   padding: 9px 12px;
@@ -868,6 +869,7 @@
 
 .crm-form-field input[type="text"]:focus,
 .crm-form-field input[type="number"]:focus,
+.crm-form-field input[type="date"]:focus,
 .crm-form-field textarea:focus,
 .crm-form-field select:focus {
   border-color: var(--crm-primary);

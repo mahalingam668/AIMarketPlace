@@ -119,7 +119,13 @@
   background: var(--brand-blue-dk);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .package-table {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
   .package-table {
     grid-template-columns: 1fr;
   }

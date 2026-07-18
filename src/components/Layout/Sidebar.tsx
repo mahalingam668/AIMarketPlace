@@ -13,6 +13,10 @@ import {
   UserCircle,
   Package,
   Send,
+  ListTodo,
+  Wallet,
+  Users,
+  Scale,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -45,6 +49,14 @@ const FREELANCER_NAV_ITEMS: SidebarNavGroupItem[] = [
   { id: 'freelancer-profile', label: 'Profile', path: '/freelancer/profile', icon: UserCircle },
   { id: 'freelancer-gigs', label: 'Gig Management', path: '/freelancer/gigs', icon: Package },
   { id: 'freelancer-proposals', label: 'Proposals', path: '/freelancer/proposals', icon: Send },
+  { id: 'freelancer-earnings', label: 'Earnings', path: '/freelancer/earnings', icon: Wallet },
+];
+
+const ADMIN_NAV_ITEMS: SidebarNavGroupItem[] = [
+  { id: 'admin-overview', label: 'Overview', path: '/admin', icon: Gauge },
+  { id: 'admin-categories', label: 'Categories', path: '/admin/categories', icon: ListTodo },
+  { id: 'admin-users', label: 'User Management', path: '/admin/users', icon: Users },
+  { id: 'admin-disputes', label: 'Dispute Resolution', path: '/admin/disputes', icon: Scale },
 ];
 
 const Sidebar: React.FC = () => {
@@ -56,10 +68,6 @@ const Sidebar: React.FC = () => {
   const role = authUser?.role ?? 'Guest';
   const crmMenuGroups = useVisibleCrmMenu();
   const { theme: crmTheme } = useCrmTheme();
-
-  const visibleNavItems = canAccess(role, 'admin')
-    ? [...navItems, { icon: ShieldCheck, label: 'Admin', path: '/admin' }]
-    : navItems;
 
   const handleNav = (item: NavItem) => {
     dispatch(setActivePage(item.label));
@@ -98,7 +106,7 @@ const Sidebar: React.FC = () => {
 
       {/* Navigation */}
       <nav className="sidebar__nav">
-        {visibleNavItems.map((item) => {
+        {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           const Icon = item.icon;
 
@@ -135,6 +143,15 @@ const Sidebar: React.FC = () => {
             label="Freelancer"
             icon={Briefcase}
             items={FREELANCER_NAV_ITEMS}
+            collapsed={collapsed}
+          />
+        )}
+
+        {canAccess(role, 'admin') && (
+          <SidebarNavGroup
+            label="Admin"
+            icon={ShieldCheck}
+            items={ADMIN_NAV_ITEMS}
             collapsed={collapsed}
           />
         )}

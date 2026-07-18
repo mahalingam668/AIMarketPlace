@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { SearchX } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { setSearch, resetFilters } from '../../../store/slices/toolsSlice';
@@ -10,6 +10,7 @@ function SearchResultsPage() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') ?? '';
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const filteredTools = useAppSelector((s) => s.tools.filteredTools);
 
   useEffect(() => {
@@ -36,6 +37,9 @@ function SearchResultsPage() {
           <SearchX size={28} />
           <h2>No gigs match "{query}"</h2>
           <p>Try a different search term or browse categories instead.</p>
+          <button type="button" className="search-results__empty-btn" onClick={() => navigate('/categories')}>
+            Browse Categories
+          </button>
         </div>
       )}
     </div>

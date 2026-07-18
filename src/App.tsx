@@ -18,6 +18,10 @@ import Pricing from './pages/Pricing';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import RequestDemo from './pages/RequestDemo';
+import HowItWorks from './pages/HowItWorks';
+import FAQ from './pages/FAQ';
+import BecomeASeller from './pages/BecomeASeller';
+import TrustSafety from './pages/TrustSafety';
 
 import Dashboard from './pages/Dashboard';
 import GuestDashboard from './pages/GuestDashboard';
@@ -55,12 +59,19 @@ import PagesManagementPage from './modules/crm/pages/PagesManagementPage';
 import DynamicPageView from './modules/crm/pages/DynamicPageView';
 import MenuManagementPage from './modules/crm/settings/MenuManagementPage';
 import ThemeSettingsPage from './modules/crm/settings/ThemeSettingsPage';
+import PostProjectPage from './modules/crm/projects/PostProjectPage';
 
 import FreelancerRootLayout from './routes/FreelancerRootLayout';
 import FreelancerDashboard from './modules/freelancer/dashboard/FreelancerDashboard';
 import FreelancerProfilePage from './modules/freelancer/profile/FreelancerProfilePage';
 import FreelancerGigsPage from './modules/freelancer/gigs/FreelancerGigsPage';
 import FreelancerProposalsPage from './modules/freelancer/proposals/FreelancerProposalsPage';
+import FreelancerEarningsPage from './modules/freelancer/earnings/FreelancerEarningsPage';
+
+import AdminRootLayout from './routes/AdminRootLayout';
+import CategoryManagerPage from './modules/admin/categories/CategoryManagerPage';
+import UserManagementPage from './modules/admin/users/UserManagementPage';
+import DisputeCenterPage from './modules/admin/disputes/DisputeCenterPage';
 
 function App() {
   return (
@@ -81,6 +92,10 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/request-demo" element={<RequestDemo />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/become-a-seller" element={<BecomeASeller />} />
+        <Route path="/trust-safety" element={<TrustSafety />} />
         <Route path="/guest/dashboard" element={<GuestDashboard />} />
 
         {/* Gig marketplace (Phase 1 — read-only browsing) */}
@@ -159,6 +174,9 @@ function App() {
                 <Route element={<CrmRoute permission="dashboard" />}>
                   <Route path="dashboard" element={<CrmDashboard />} />
                 </Route>
+                <Route element={<CrmRoute permission="projects" />}>
+                  <Route path="projects" element={<PostProjectPage />} />
+                </Route>
                 <Route element={<CrmRoute permission="products" />}>
                   <Route path="products" element={<ProductsPage />} />
                 </Route>
@@ -187,6 +205,7 @@ function App() {
                 <Route path="profile" element={<FreelancerProfilePage />} />
                 <Route path="gigs" element={<FreelancerGigsPage />} />
                 <Route path="proposals" element={<FreelancerProposalsPage />} />
+                <Route path="earnings" element={<FreelancerEarningsPage />} />
               </Route>
             </Route>
           </Route>
@@ -197,7 +216,12 @@ function App() {
       <Route element={<ProtectedRoute allow={['Admin']} />}>
         <Route element={<CrmProviders />}>
           <Route element={<AppLayout />}>
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin" element={<AdminRootLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="categories" element={<CategoryManagerPage />} />
+              <Route path="users" element={<UserManagementPage />} />
+              <Route path="disputes" element={<DisputeCenterPage />} />
+            </Route>
           </Route>
         </Route>
       </Route>

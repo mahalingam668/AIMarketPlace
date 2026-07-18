@@ -14,6 +14,8 @@ const footerSections: FooterSection[] = [
     links: [
       { text: 'Browse Marketplace', href: '#/browse' },
       { text: 'AI Solutions', href: '#/browse' },
+      { text: 'How It Works', href: '#/how-it-works' },
+      { text: 'Become a Seller', href: '#/become-a-seller' },
       { text: 'Data & Model Catalog', href: '#/catalog' },
       { text: 'Governance Center', href: '#/governance' },
       { text: 'Integrations', href: '#/integrations' },
@@ -23,6 +25,7 @@ const footerSections: FooterSection[] = [
   {
     title: 'Resources',
     links: [
+      { text: 'FAQ', href: '#/faq' },
       { text: 'Documentation', href: '#/documentation' },
       { text: 'Comparison Center', href: '#/compare' },
       { text: 'Customer Stories', href: '#/customers' },
@@ -33,6 +36,7 @@ const footerSections: FooterSection[] = [
     title: 'Company',
     links: [
       { text: 'About YAKKAY', href: '#/about' },
+      { text: 'Trust & Safety', href: '#/trust-safety' },
       { text: 'Contact Sales', href: '#/contact' },
       { text: 'Careers', href: '#' },
       { text: 'Press Kit', href: '#' },

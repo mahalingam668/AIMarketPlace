@@ -60,8 +60,18 @@ function StickyHeader() {
   useEffect(() => clearTimers, []);
 
   const handleSearchSubmit = (value: string) => {
-    dispatch(setSearch(value));
-    navigate('/browse');
+    navigate(`/search?q=${encodeURIComponent(value)}`);
+  };
+
+  // A Developer/Admin already has a workspace to jump straight into; everyone
+  // else (guests, Companies) sees the marketing pitch with a real sign-up CTA
+  // instead of bouncing through a login redirect for a route they can't reach.
+  const handleBecomeSeller = () => {
+    if (isAuthenticated && (user?.role === 'Developer' || user?.role === 'Admin')) {
+      navigate('/freelancer');
+    } else {
+      navigate('/become-a-seller');
+    }
   };
 
   return (
@@ -84,6 +94,9 @@ function StickyHeader() {
           >
             Explore
             <ChevronDown size={13} className={isExploreOpen ? 'sticky-header__chevron--open' : ''} />
+          </button>
+          <button type="button" className="sticky-header__nav-link" onClick={() => navigate('/categories')}>
+            Browse AI Services
           </button>
           <button type="button" className="sticky-header__nav-link" onClick={() => navigate('/pricing')}>
             Pricing
@@ -124,7 +137,7 @@ function StickyHeader() {
             </button>
           )}
 
-          <button type="button" className="sticky-header__seller-link" onClick={() => navigate('/freelancer')}>
+          <button type="button" className="sticky-header__seller-link" onClick={handleBecomeSeller}>
             Become a Seller
           </button>
 
@@ -189,6 +202,13 @@ function StickyHeader() {
           <button
             type="button"
             className="sticky-header__mobile-link"
+            onClick={() => { navigate('/categories'); setIsMobileMenuOpen(false); }}
+          >
+            Browse AI Services
+          </button>
+          <button
+            type="button"
+            className="sticky-header__mobile-link"
             onClick={() => { navigate('/pricing'); setIsMobileMenuOpen(false); }}
           >
             Pricing
@@ -196,7 +216,7 @@ function StickyHeader() {
           <button
             type="button"
             className="sticky-header__mobile-link"
-            onClick={() => { navigate('/freelancer'); setIsMobileMenuOpen(false); }}
+            onClick={() => { handleBecomeSeller(); setIsMobileMenuOpen(false); }}
           >
             <Store size={15} /> Become a Seller
           </button>

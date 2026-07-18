@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Sparkles, Mail, Lock, User, Building2, Code2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { Sparkles, Mail, Lock, User, Building2, Code2, ShoppingBag } from 'lucide-react';
 import { useAppDispatch } from '../../store';
 import { login } from '../../store/slices/authSlice';
 import { ROLE_LANDING_PATH, type AccountRole } from '../../modules/auth/roles';
 import AccountTypePicker, { type AccountTypeOption } from '../Login/AccountTypePicker';
 import AuthVisual from '../Login/AuthVisual';
+import { readPendingGigSelection, clearPendingGigSelection } from '../../modules/marketplace/utils/pendingGigSelection';
 import '../Login/Auth.css';
 
 const ACCOUNT_TYPE_OPTIONS: AccountTypeOption[] = [
@@ -33,11 +35,20 @@ function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const pendingGigSelection = readPendingGigSelection();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!role) return;
     dispatch(login({ name: name || 'New User', email, role }));
+
+    if (role === 'Company' && pendingGigSelection) {
+      clearPendingGigSelection();
+      toast.success(`Welcome! You can now message ${pendingGigSelection.gigName}'s seller or place your order.`);
+      navigate(`/gig/${pendingGigSelection.gigId}`, { replace: true });
+      return;
+    }
+
     navigate(ROLE_LANDING_PATH[role], { replace: true });
   };
 
@@ -51,6 +62,15 @@ function Register() {
           </div>
           <h1 className="auth__title">Create your workspace</h1>
           <p className="auth__subtitle">Start exploring the enterprise AI marketplace in under a minute.</p>
+
+          {pendingGigSelection && (
+            <div className="auth__pending-banner">
+              <ShoppingBag size={15} />
+              <span>
+                Signing up to order <strong>{pendingGigSelection.gigName}</strong> ({pendingGigSelection.tier})
+              </span>
+            </div>
+          )}
 
           <AccountTypePicker
             legend="Account type"

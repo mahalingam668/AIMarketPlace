@@ -2,7 +2,22 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
-  padding-bottom: 64px;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
+}
+
+@media (max-width: 900px) {
+  .tool-detail {
+    padding: 24px 24px 48px;
+  }
+}
+
+@media (max-width: 640px) {
+  .tool-detail {
+    padding: 20px 16px 40px;
+  }
 }
 
 /* Back Link */
@@ -162,6 +177,20 @@
   gap: 4px;
   border-bottom: 1px solid var(--border-primary);
   padding-bottom: 0;
+}
+
+@media (max-width: 640px) {
+  .tool-detail__tab-list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tool-detail__tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 }
 
 .tool-detail__tab {

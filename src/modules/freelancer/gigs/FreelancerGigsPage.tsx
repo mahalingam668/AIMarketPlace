@@ -2,10 +2,30 @@ import { useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Search, Plus, Pencil, Trash2, Play, Pause, X, Eye, MousePointerClick, Package } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../../store';
-import { addGig, updateGig, updateGigStatus, deleteGig, type FreelancerGig, type GigStatus } from '../../../store/slices/freelancerSlice';
+import {
+  addGig,
+  updateGig,
+  updateGigStatus,
+  deleteGig,
+  buildGigPackages,
+  type FreelancerGig,
+  type GigStatus,
+} from '../../../store/slices/freelancerSlice';
+import type { PackageTier } from '../../../modules/marketplace/types/gig.types';
 import StatusPill from '../components/StatusPill';
 
-const EMPTY_DRAFT = { title: '', category: '', price: 100, status: 'draft' as GigStatus };
+const EMPTY_DRAFT = {
+  title: '',
+  category: '',
+  status: 'draft' as GigStatus,
+  priceBasic: 60,
+  priceStandard: 100,
+  pricePremium: 160,
+};
+
+function tierPrice(gig: FreelancerGig, tier: PackageTier): number {
+  return gig.packages.find((p) => p.tier === tier)?.price ?? 0;
+}
 
 function FreelancerGigsPage() {
   const dispatch = useAppDispatch();
@@ -30,7 +50,14 @@ function FreelancerGigsPage() {
 
   const openEditDrawer = (gig: FreelancerGig) => {
     setDrawerGig(gig);
-    setDraft({ title: gig.title, category: gig.category, price: gig.price, status: gig.status });
+    setDraft({
+      title: gig.title,
+      category: gig.category,
+      status: gig.status,
+      priceBasic: tierPrice(gig, 'Basic'),
+      priceStandard: tierPrice(gig, 'Standard'),
+      pricePremium: tierPrice(gig, 'Premium'),
+    });
     setShowDrawer(true);
   };
 
@@ -41,14 +68,26 @@ function FreelancerGigsPage() {
       toast.error('Title and category are required.');
       return;
     }
+    if (draft.priceBasic <= 0 || draft.priceStandard <= 0 || draft.pricePremium <= 0) {
+      toast.error('Every package needs a price greater than $0.');
+      return;
+    }
+    const packages = buildGigPackages(draft.category, {
+      Basic: draft.priceBasic,
+      Standard: draft.priceStandard,
+      Premium: draft.pricePremium,
+    });
     if (drawerGig) {
-      dispatch(updateGig({ ...drawerGig, ...draft }));
+      dispatch(updateGig({ ...drawerGig, title: draft.title, category: draft.category, status: draft.status, packages }));
       toast.success('Gig updated.');
     } else {
       dispatch(
         addGig({
           id: `gig-${Date.now()}`,
-          ...draft,
+          title: draft.title,
+          category: draft.category,
+          status: draft.status,
+          packages,
           impressions: 0,
           clicks: 0,
           orders: 0,
@@ -128,7 +167,7 @@ function FreelancerGigsPage() {
                       </div>
                     </td>
                     <td><StatusPill status={gig.status} /></td>
-                    <td>${gig.price}</td>
+                    <td>From ${tierPrice(gig, 'Basic')}</td>
                     <td><span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Eye size={12} /> {gig.impressions.toLocaleString()}</span></td>
                     <td><span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><MousePointerClick size={12} /> {gig.clicks.toLocaleString()}</span></td>
                     <td>{gig.orders}</td>
@@ -200,13 +239,35 @@ function FreelancerGigsPage() {
             </div>
 
             <div className="fl-form-field">
-              <label htmlFor="gig-price">Starting Price (USD)</label>
+              <label htmlFor="gig-price-basic">Basic package price (USD)</label>
               <input
-                id="gig-price"
+                id="gig-price-basic"
                 type="number"
                 min={5}
-                value={draft.price}
-                onChange={(e) => setDraft((prev) => ({ ...prev, price: Number(e.target.value) }))}
+                value={draft.priceBasic}
+                onChange={(e) => setDraft((prev) => ({ ...prev, priceBasic: Number(e.target.value) }))}
+              />
+            </div>
+
+            <div className="fl-form-field">
+              <label htmlFor="gig-price-standard">Standard package price (USD)</label>
+              <input
+                id="gig-price-standard"
+                type="number"
+                min={5}
+                value={draft.priceStandard}
+                onChange={(e) => setDraft((prev) => ({ ...prev, priceStandard: Number(e.target.value) }))}
+              />
+            </div>
+
+            <div className="fl-form-field">
+              <label htmlFor="gig-price-premium">Premium package price (USD)</label>
+              <input
+                id="gig-price-premium"
+                type="number"
+                min={5}
+                value={draft.pricePremium}
+                onChange={(e) => setDraft((prev) => ({ ...prev, pricePremium: Number(e.target.value) }))}
               />
             </div>
 

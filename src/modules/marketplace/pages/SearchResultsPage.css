@@ -2,7 +2,10 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding-bottom: 64px;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
 }
 
 .search-results__header h1 {
@@ -40,4 +43,25 @@
 .search-results__empty h2 {
   color: var(--text-primary);
   margin: 0;
+}
+
+.search-results__empty-btn {
+  margin-top: 8px;
+  padding: 10px 24px;
+  background: var(--accent-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .search-results {
+    padding: 24px 20px 48px;
+  }
+  .search-results__grid {
+    grid-template-columns: 1fr;
+  }
 }

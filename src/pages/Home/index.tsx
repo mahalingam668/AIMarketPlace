@@ -78,8 +78,7 @@ function Home() {
   );
 
   const handleSearchSubmit = (value: string) => {
-    dispatch(setSearch(value));
-    navigate('/browse');
+    navigate(`/search?q=${encodeURIComponent(value)}`);
   };
 
   const handleCategoryClick = (category: string) => {
@@ -120,6 +119,10 @@ function Home() {
               </button>
             ))}
           </div>
+
+          <button type="button" className="home__section-link" onClick={() => navigate('/categories')}>
+            Browse AI services by category <ArrowRight size={14} />
+          </button>
         </motion.div>
       </section>
 
