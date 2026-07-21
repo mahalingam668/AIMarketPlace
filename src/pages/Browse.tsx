@@ -294,7 +294,7 @@ const FEATURED_INTEGRATIONS: FeaturedIntegration[] = [
 const CLIENT_TESTIMONIALS = [
   {
     logo: 'UBS',
-    quote: "NexusAI is the crucial process automation component that acts as the glue holding together our entire financial intelligence solution. We were able to count on NexusAI's model capabilities to scale transaction workloads by 400% with absolute accuracy.",
+    quote: "YAKKAY is the crucial process automation component that acts as the glue holding together our entire financial intelligence solution. We were able to count on YAKKAY's model capabilities to scale transaction workloads by 400% with absolute accuracy.",
     author: 'Thierry Schafflützel, IT Project Manager, UBS'
   },
   {

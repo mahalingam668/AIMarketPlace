@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   AreaChart,
@@ -27,6 +27,7 @@ import {
   Rocket,
   ShieldCheck,
   BookOpen,
+  Sparkles,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import StatCard from '../components/ui/StatCard';
@@ -62,6 +63,21 @@ const listItemVariants = {
 
 const PIE_COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#3b82f6', '#f97316'];
 
+const QUICK_ACTIONS = [
+  { label: 'Browse Marketplace', desc: 'Search the full AI tool catalog', icon: Compass, color: '#06b6d4', path: '/browse' },
+  { label: 'Governance Center', desc: 'Review compliance & access policy', icon: ShieldCheck, color: '#10b981', path: '/governance' },
+  { label: 'Documentation', desc: 'Guides, API reference & tutorials', icon: BookOpen, color: '#8b5cf6', path: '/documentation' },
+  { label: 'Request a Demo', desc: 'Talk to our solutions team', icon: Rocket, color: '#f59e0b', path: '/request-demo', primary: true },
+];
+
+type ChartMetric = 'apiCalls' | 'revenue' | 'users';
+
+const CHART_METRICS: { key: ChartMetric; label: string; color: string; format: (v: number) => string }[] = [
+  { key: 'apiCalls', label: 'API Calls', color: '#8b5cf6', format: (v) => `${(v / 1000).toFixed(0)}k` },
+  { key: 'revenue', label: 'Revenue', color: '#10b981', format: (v) => `$${(v / 1000).toFixed(0)}k` },
+  { key: 'users', label: 'Users', color: '#06b6d4', format: (v) => `${(v / 1000).toFixed(1)}k` },
+];
+
 const statusIcons: Record<string, React.ReactNode> = {
   success: <CheckCircle size={16} />,
   warning: <AlertCircle size={16} />,
@@ -73,24 +89,30 @@ interface CustomTooltipProps {
   active?: boolean;
   payload?: Array<{ value: number; name: string }>;
   label?: string;
+  valuePrefix?: string;
 }
 
-function CustomAreaTooltip({ active, payload, label }: CustomTooltipProps) {
+function CustomAreaTooltip({ active, payload, label, valuePrefix = '' }: CustomTooltipProps) {
   if (!active || !payload || !payload.length) return null;
   return (
     <div className="dashboard__tooltip">
       <p style={{ color: '#f1f5f9', fontWeight: 600, marginBottom: 4 }}>{label}</p>
       {payload.map((entry, i) => (
         <p key={i} style={{ color: '#94a3b8', fontSize: 13, margin: '2px 0' }}>
-          {entry.name}: {entry.value.toLocaleString()}
+          {entry.name}: {valuePrefix}{entry.value.toLocaleString()}
         </p>
       ))}
     </div>
   );
 }
 
+function getInitials(name: string): string {
+  return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
+}
+
 function Dashboard() {
   const navigate = useNavigate();
+  const [activeMetric, setActiveMetric] = useState<ChartMetric>('apiCalls');
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -113,6 +135,8 @@ function Dashboard() {
     []
   );
 
+  const activeChartMetric = CHART_METRICS.find((m) => m.key === activeMetric)!;
+
   return (
     <motion.div
       className="dashboard"
@@ -122,8 +146,15 @@ function Dashboard() {
     >
       {/* Welcome Section */}
       <motion.div className="dashboard__welcome" variants={itemVariants}>
-        <h1>Welcome back, {currentUser.name}</h1>
-        <p>{today}</p>
+        <div className="dashboard__welcome-avatar">{getInitials(currentUser.name)}</div>
+        <div className="dashboard__welcome-text">
+          <h1>Welcome back, {currentUser.name.split(' ')[0]}</h1>
+          <p>{today} · {currentUser.plan} plan</p>
+        </div>
+        <div className="dashboard__welcome-badge">
+          <Sparkles size={13} />
+          {activityFeed.length} updates today
+        </div>
       </motion.div>
 
       {/* KPI Row */}
@@ -135,6 +166,7 @@ function Dashboard() {
           icon={Package}
           color="#8b5cf6"
           delay={0}
+          sparkline={categoryStats.map((c) => c.count)}
         />
         <StatCard
           title="API Calls Today"
@@ -143,6 +175,7 @@ function Dashboard() {
           icon={Activity}
           color="#06b6d4"
           delay={0.1}
+          sparkline={chartData.map((d) => d.apiCalls)}
         />
         <StatCard
           title="Active Users"
@@ -151,6 +184,7 @@ function Dashboard() {
           icon={Users}
           color="#10b981"
           delay={0.2}
+          sparkline={chartData.map((d) => d.users)}
         />
         <StatCard
           title="Revenue"
@@ -159,6 +193,7 @@ function Dashboard() {
           icon={DollarSign}
           color="#f59e0b"
           delay={0.3}
+          sparkline={chartData.map((d) => d.revenue)}
         />
       </motion.div>
 
@@ -166,14 +201,29 @@ function Dashboard() {
       <motion.div className="dashboard__charts-row" variants={itemVariants}>
         {/* Area Chart */}
         <div className="dashboard__chart-card">
-          <h3 className="dashboard__chart-title">API Usage Over Time</h3>
+          <div className="dashboard__chart-card-header">
+            <h3 className="dashboard__chart-title">Growth Over Time</h3>
+            <div className="dashboard__metric-tabs">
+              {CHART_METRICS.map((metric) => (
+                <button
+                  key={metric.key}
+                  type="button"
+                  className={`dashboard__metric-tab ${activeMetric === metric.key ? 'dashboard__metric-tab--active' : ''}`}
+                  style={activeMetric === metric.key ? { color: metric.color, borderColor: metric.color, background: `${metric.color}1a` } : undefined}
+                  onClick={() => setActiveMetric(metric.key)}
+                >
+                  {metric.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="dashboard__chart-wrapper">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                 <defs>
                   <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
+                    <stop offset="0%" stopColor={activeChartMetric.color} stopOpacity={0.3} />
+                    <stop offset="100%" stopColor={activeChartMetric.color} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
@@ -191,18 +241,23 @@ function Dashboard() {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: '#64748b', fontSize: 12 }}
-                  tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+                  tickFormatter={activeChartMetric.format}
                 />
-                <Tooltip content={<CustomAreaTooltip />} />
+                <Tooltip
+                  content={
+                    <CustomAreaTooltip valuePrefix={activeChartMetric.key === 'revenue' ? '$' : ''} />
+                  }
+                />
                 <Area
+                  key={activeChartMetric.key}
                   type="monotone"
-                  dataKey="apiCalls"
-                  stroke="#8b5cf6"
+                  dataKey={activeChartMetric.key}
+                  stroke={activeChartMetric.color}
                   strokeWidth={2.5}
                   fill="url(#areaGradient)"
-                  name="API Calls"
+                  name={activeChartMetric.label}
                   dot={false}
-                  activeDot={{ r: 5, stroke: '#8b5cf6', strokeWidth: 2, fill: '#0a0e1a' }}
+                  activeDot={{ r: 5, stroke: activeChartMetric.color, strokeWidth: 2, fill: '#0a0e1a' }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -351,22 +406,26 @@ function Dashboard() {
         <GlassCard padding="24px">
           <h3 className="dashboard__section-title">Quick Actions</h3>
           <div className="dashboard__quick-actions">
-            <button type="button" className="dashboard__quick-action" onClick={() => navigate('/browse')}>
-              <Compass size={18} />
-              Browse Marketplace
-            </button>
-            <button type="button" className="dashboard__quick-action" onClick={() => navigate('/governance')}>
-              <ShieldCheck size={18} />
-              Open Governance Center
-            </button>
-            <button type="button" className="dashboard__quick-action" onClick={() => navigate('/documentation')}>
-              <BookOpen size={18} />
-              Read Documentation
-            </button>
-            <button type="button" className="dashboard__quick-action dashboard__quick-action--primary" onClick={() => navigate('/request-demo')}>
-              <Rocket size={18} />
-              Request a Demo
-            </button>
+            {QUICK_ACTIONS.map((action) => {
+              const ActionIcon = action.icon;
+              return (
+                <button
+                  key={action.label}
+                  type="button"
+                  className={`dashboard__quick-action ${action.primary ? 'dashboard__quick-action--primary' : ''}`}
+                  onClick={() => navigate(action.path)}
+                >
+                  <span className="dashboard__quick-action-icon" style={{ background: `${action.color}22`, color: action.primary ? '#fff' : action.color }}>
+                    <ActionIcon size={18} />
+                  </span>
+                  <span className="dashboard__quick-action-text">
+                    <span className="dashboard__quick-action-label">{action.label}</span>
+                    <span className="dashboard__quick-action-desc">{action.desc}</span>
+                  </span>
+                  <ArrowRight size={15} className="dashboard__quick-action-arrow" />
+                </button>
+              );
+            })}
           </div>
         </GlassCard>
       </motion.div>

@@ -198,12 +198,12 @@ function Settings() {
           <button
             type="button"
             className="settings__action-item settings__action-item--danger"
-            onClick={() => toast.error('Signed out of NexusAI')}
+            onClick={() => toast.error('Signed out of YAKKAY')}
           >
             <span className="settings__action-icon"><LogOut size={16} /></span>
             <div className="settings__action-text">
               <span>Log Out</span>
-              <span className="settings__toggle-desc">Sign out of your NexusAI workspace</span>
+              <span className="settings__toggle-desc">Sign out of your YAKKAY workspace</span>
             </div>
           </button>
         </div>

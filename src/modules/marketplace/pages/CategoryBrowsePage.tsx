@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { SearchX } from 'lucide-react';
 import { aiTools } from '../../../data/mockData';
 import { getToolsForCategory, toolMatchesSubCategory } from '../data/categories';
@@ -10,12 +10,19 @@ import './CategoryBrowsePage.css';
 function CategoryBrowsePage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const [activeSubSlug, setActiveSubSlug] = useState<string | null>(null);
+  // The active sub-category filter lives entirely in the URL (?sub=...)
+  // rather than local component state — that's what lets a link elsewhere
+  // in the app (e.g. the mega menu) deep-link straight into a specific
+  // sub-category instead of only ever landing on the unfiltered parent
+  // category page, and it comes for free with correct behavior when the
+  // category itself changes (a fresh URL has no stale sub-filter to reset).
+  const [searchParams, setSearchParams] = useSearchParams();
   const categories = useAppSelector((s) => s.categories.categories);
   const category = slug ? categories.find((c) => c.slug === slug) : undefined;
 
   const categoryTools = useMemo(() => (category ? getToolsForCategory(aiTools, category.name) : []), [category]);
 
+  const activeSubSlug = searchParams.get('sub');
   const activeSubCategory = category?.subCategories.find((s) => s.slug === activeSubSlug) ?? null;
 
   const visibleTools = useMemo(() => {
@@ -23,11 +30,9 @@ function CategoryBrowsePage() {
     return categoryTools.filter((tool) => toolMatchesSubCategory(tool, activeSubCategory.name));
   }, [categoryTools, activeSubCategory]);
 
-  // Reset the sub-category filter whenever the category itself changes, so
-  // navigating between categories doesn't carry over a stale selection.
-  useEffect(() => {
-    setActiveSubSlug(null);
-  }, [slug]);
+  const selectSubCategory = (subSlug: string | null) => {
+    setSearchParams(subSlug ? { sub: subSlug } : {}, { replace: true });
+  };
 
   if (!category) {
     return (
@@ -53,7 +58,7 @@ function CategoryBrowsePage() {
         <button
           type="button"
           className={`category-browse__chip ${!activeSubCategory ? 'category-browse__chip--active' : ''}`}
-          onClick={() => setActiveSubSlug(null)}
+          onClick={() => selectSubCategory(null)}
         >
           All {category.name}
         </button>
@@ -62,7 +67,7 @@ function CategoryBrowsePage() {
             key={sub.slug}
             type="button"
             className={`category-browse__chip ${activeSubCategory?.slug === sub.slug ? 'category-browse__chip--active' : ''}`}
-            onClick={() => setActiveSubSlug(sub.slug)}
+            onClick={() => selectSubCategory(sub.slug)}
           >
             {sub.name}
           </button>
@@ -82,7 +87,7 @@ function CategoryBrowsePage() {
           <SearchX size={28} />
           <h2>No gigs match this sub-category yet</h2>
           <p>Check back soon, or browse all of {category.name}.</p>
-          <button type="button" className="category-browse__empty-btn" onClick={() => setActiveSubSlug(null)}>
+          <button type="button" className="category-browse__empty-btn" onClick={() => selectSubCategory(null)}>
             Show all {category.name}
           </button>
         </div>

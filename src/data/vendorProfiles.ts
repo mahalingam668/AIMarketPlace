@@ -52,11 +52,11 @@ export interface VendorProfile {
 
 export const VENDOR_PROFILES: VendorProfile[] = [
   {
-    id: 'v-nexusai-partners',
-    name: 'NexusAI Partners',
+    id: 'v-yakkay-partners',
+    name: 'YAKKAY Partners',
     role: 'Vendor',
     title: 'I will deploy and govern enterprise LLMs across your regulated business',
-    avatarInitials: 'NP',
+    avatarInitials: 'YP',
     avatarColor: '#8b5cf6',
     bannerIcon: Brain,
     level: 'Enterprise Partner',
@@ -65,7 +65,7 @@ export const VENDOR_PROFILES: VendorProfile[] = [
     languages: ['English'],
     bio: 'Specialist reseller and deployment partner for large-language-model rollouts across regulated industries — banking, healthcare, and public sector.',
     longBio:
-      'NexusAI Partners has spent seven years helping regulated enterprises adopt large language models without compromising on compliance. Our team of solution architects handles everything from vendor selection and SLA negotiation to change management and staff enablement, so your rollout succeeds on the first attempt.',
+      'YAKKAY Partners has spent seven years helping regulated enterprises adopt large language models without compromising on compliance. Our team of solution architects handles everything from vendor selection and SLA negotiation to change management and staff enablement, so your rollout succeeds on the first attempt.',
     skills: ['LLM Deployment', 'Compliance', 'Change Management', 'SLA Design'],
     introVideoUrl: SAMPLE_VIDEO_SOURCES.bigBuckBunny,
     portfolioHighlights: [

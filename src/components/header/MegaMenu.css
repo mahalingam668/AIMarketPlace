@@ -74,6 +74,13 @@
   align-items: stretch;
   gap: 40px;
   padding-bottom: 32px;
+  /* Bounded so a section with many columns (e.g. AI Services' 7 groups,
+     wrapping to several rows) scrolls internally instead of stretching the
+     dropdown past the viewport — and so the side panel has a fixed height
+     to reliably fill, rather than depending on flex stretch matching a
+     wrapped multi-row sibling's natural height, which doesn't always
+     resolve consistently across browsers. */
+  max-height: min(520px, calc(100vh - 220px));
 }
 
 .mega-menu__columns {
@@ -81,6 +88,14 @@
   gap: 40px;
   flex: 1;
   flex-wrap: wrap;
+  align-content: flex-start;
+  overflow-y: auto;
+  padding-right: 8px;
+  /* Flex items default to min-height:auto, which means "never shrink below
+     your content's natural height" — without this override, max-height +
+     overflow above would be silently ignored and the column list would just
+     push the whole dropdown taller instead of scrolling internally. */
+  min-height: 0;
 }
 
 .mega-menu__column {

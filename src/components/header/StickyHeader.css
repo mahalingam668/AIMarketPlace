@@ -379,4 +379,12 @@
   .sticky-header__brand-text {
     font-size: 15px;
   }
+
+  /* "YAKKAY AI Market Place" is long enough that keeping the full wordmark
+     on a narrow phone (where sign-in/join buttons are also fighting for
+     row space, with no wrap/overflow handling on .sticky-header__row) risks
+     horizontal overflow — collapse to just "YAKKAY" below this breakpoint. */
+  .sticky-header__brand-text span {
+    display: none;
+  }
 }

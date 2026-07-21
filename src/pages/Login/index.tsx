@@ -34,7 +34,7 @@ function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const [email, setEmail] = useState('alex.chen@nexusai.com');
+  const [email, setEmail] = useState('alex.chen@yakkay.com');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<AccountRole>('Company');
   const [isAdminMode, setIsAdminMode] = useState(false);

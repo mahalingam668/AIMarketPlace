@@ -81,7 +81,7 @@ function StickyHeader() {
           <span className="sticky-header__brand-icon">
             <Sparkles size={18} />
           </span>
-          <span className="sticky-header__brand-text">YAKKAY <span>AI Line</span></span>
+          <span className="sticky-header__brand-text">YAKKAY <span>AI Market Place</span></span>
         </div>
 
         <nav className="sticky-header__nav">

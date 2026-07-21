@@ -78,7 +78,7 @@ const Footer: React.FC = () => {
             <span className="footer__brand-icon">
               <Sparkles size={18} />
             </span>
-            <span className="footer__brand-name">YAKKAY AI Line</span>
+            <span className="footer__brand-name">YAKKAY AI Market Place</span>
           </div>
           <p className="footer__brand-desc">
             The enterprise marketplace for discovering, governing, and deploying production-grade AI —
@@ -121,7 +121,7 @@ const Footer: React.FC = () => {
 
       <div className="footer__bottom">
         <p className="footer__copyright">
-          © {new Date().getFullYear()} YAKKAY AI Line, Inc. All rights reserved.
+          © {new Date().getFullYear()} YAKKAY AI Market Place, Inc. All rights reserved.
         </p>
         <p className="footer__tagline">Built for teams shipping AI at scale.</p>
       </div>

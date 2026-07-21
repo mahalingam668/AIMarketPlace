@@ -190,6 +190,67 @@
   padding: 0 32px 40px;
 }
 
+/* ----- Fiverr-style quick-topics strip (below hero) ----- */
+.home__topics-strip {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 32px 24px;
+}
+
+.home__topics-strip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.home__topics-strip-row::-webkit-scrollbar {
+  display: none;
+}
+
+.home__topics-strip-label {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  padding-right: 6px;
+  white-space: nowrap;
+}
+
+.home__topic-chip {
+  flex-shrink: 0;
+  white-space: nowrap;
+  background: none;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.home__topic-chip:hover {
+  border-color: var(--brand-blue);
+  color: var(--text-primary);
+}
+
+.home__topic-chip--active {
+  background: var(--brand-blue);
+  border-color: var(--brand-blue);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.home__topic-chip--active:hover {
+  color: #ffffff;
+}
+
 /* ----- Category quick-access strip (Fiverr-style icon tiles) ----- */
 .home__category-strip {
   max-width: 1280px;
@@ -377,47 +438,152 @@
 }
 
 /* ----- Trending row ----- */
-.home__trending-row {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.home__trending-title-flame {
+  color: #f97316;
+  vertical-align: -3px;
+  margin-right: 4px;
 }
 
-.home__trending-item {
+.home__trending-scroll {
   display: flex;
-  align-items: center;
   gap: 16px;
+  overflow-x: auto;
+  padding: 4px 4px 10px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.home__trending-card {
+  position: relative;
+  flex: 0 0 240px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 14px 18px;
+  border-radius: var(--radius-lg);
+  padding: 18px;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
-.home__trending-item:hover {
+.home__trending-card:hover {
   border-color: var(--brand-blue);
-  background: var(--brand-blue-lt);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+
+.home__trending-flame {
+  position: absolute;
+  top: -10px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  padding: 4px 9px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
 }
 
 .home__trending-rank {
+  position: absolute;
+  top: 8px;
+  right: 14px;
   font-family: var(--font-heading);
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-muted);
-  width: 20px;
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--border-subtle);
+  -webkit-text-stroke: 1px var(--border-subtle);
+  z-index: 0;
 }
 
-.home__trending-name {
-  font-size: 14px;
+.home__trending-rank--1 {
+  color: rgba(250, 204, 21, 0.35);
+  -webkit-text-stroke: 1px #eab308;
+}
+
+.home__trending-rank--2 {
+  color: rgba(203, 213, 225, 0.5);
+  -webkit-text-stroke: 1px #94a3b8;
+}
+
+.home__trending-rank--3 {
+  color: rgba(217, 119, 6, 0.3);
+  -webkit-text-stroke: 1px #b45309;
+}
+
+.home__trending-card-icon {
+  position: relative;
+  z-index: 1;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.home__trending-card-icon-glyph {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.home__trending-card-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.home__trending-card-name {
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
-  flex: 1;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.home__trending-category {
+.home__trending-card-category {
   font-size: 12px;
   color: var(--text-muted);
+}
+
+.home__trending-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.home__trending-card-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.home__trending-card-growth {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-success, #16a34a);
+  background: rgba(22, 163, 74, 0.1);
+  padding: 3px 8px;
+  border-radius: 20px;
 }
 
 /* ----- Industry strip ----- */
@@ -478,5 +644,8 @@
   .home__category-pill {
     width: 104px;
     padding: 14px 8px;
+  }
+  .home__topics-strip {
+    padding: 0 20px 20px;
   }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
@@ -8,13 +8,14 @@ import {
   Plug, Building2, Landmark, Users, Cloud, Code2,
   BookOpen, Rocket, FileText, GraduationCap, Terminal,
   BarChart4, Scale, DollarSign, Building,
-  Quote, Star, Trophy, Download,
+  Quote, Star, Trophy, Download, Sparkles,
   ArrowRight,
   type LucideIcon,
 } from 'lucide-react';
-import { useAppDispatch } from '../../store';
+import { useAppDispatch, useAppSelector } from '../../store';
 import { resetFilters, toggleCategory, setSearch } from '../../store/slices/toolsSlice';
 import { aiTools } from '../../data/mockData';
+import { resolveIcon } from '../../modules/marketplace/components/iconMap';
 import './MegaMenu.css';
 
 interface MegaMenuLink {
@@ -329,19 +330,56 @@ const flipVariants = {
 function MegaMenu({ onNavigate }: MegaMenuProps) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  // Built from the same Redux-backed taxonomy the admin Category Manager
+  // edits (categoriesSlice) and the public /categories, /category/:slug
+  // pages already read from — so a sub-category added/renamed/retired in
+  // the admin shows up here too, instead of this menu drifting out of sync
+  // with the real marketplace taxonomy the way the rest of it historically did.
+  const categories = useAppSelector((s) => s.categories.categories);
+  const aiServicesSection: MegaMenuSection = useMemo(() => {
+    const totalSubCategories = categories.reduce((sum, c) => sum + c.subCategories.length, 0);
+    return {
+      key: 'ai-services',
+      label: 'AI Services',
+      columns: categories.map((cat) => ({
+        title: cat.name,
+        blurb: cat.description,
+        seeAllTo: `/category/${cat.slug}`,
+        links: cat.subCategories.slice(0, 4).map((sub) => ({
+          label: sub.name,
+          icon: resolveIcon(cat.icon),
+          desc: `Find ${sub.name.toLowerCase()} specialists in the ${cat.name} category.`,
+          // Carries the specific sub-category through as a query param so
+          // this deep-links into that filter rather than always landing on
+          // the unfiltered parent category page (CategoryBrowsePage reads
+          // ?sub= as its source of truth for the active filter).
+          action: toPath(`/category/${cat.slug}?sub=${sub.slug}`),
+        })),
+      })),
+      panel: {
+        icon: Sparkles,
+        title: 'Browse the full AI Services taxonomy',
+        desc: `${categories.length} categories and ${totalSubCategories} sub-categories — find the specialist you need.`,
+        ctaLabel: 'Browse All Categories',
+        ctaTo: '/categories',
+      },
+    };
+  }, [categories]);
+
+  const sections = useMemo(() => [aiServicesSection, ...MEGA_MENU_SECTIONS], [aiServicesSection]);
+
   // A single "Explore" trigger now opens this whole menu, so section
   // switching (previously done by hovering one of six separate top-level
   // nav buttons) happens via the tab row rendered inside the panel below.
-  const [activeKey, setActiveKey] = useState(MEGA_MENU_SECTIONS[0].key);
-  const section = MEGA_MENU_SECTIONS.find((s) => s.key === activeKey);
+  const [activeKey, setActiveKey] = useState(sections[0].key);
+  const section = sections.find((s) => s.key === activeKey);
   const prevIndexRef = useRef(0);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Both hover and click select a topic and show its details in the panel —
-  // neither one navigates away on its own. Hover gives an instant preview
-  // (debounced so a fast pass down the list doesn't flip on every item);
-  // click is the same action for touch/keyboard users where hover doesn't
-  // apply. Only the panel's own Install / More Details / See all buttons
-  // actually navigate.
+  // Hover shows an instant preview in the side panel (debounced so a fast
+  // pass down the list doesn't flip on every item) for mouse users deciding
+  // where to go; a click commits and navigates immediately — no second click
+  // on a "View" button required, since that was confusing rather than an
+  // intentional two-step confirmation.
   const [selectedLink, setSelectedLink] = useState<MegaMenuLink | null>(null);
   const [prevActiveKey, setPrevActiveKey] = useState(activeKey);
 
@@ -362,7 +400,7 @@ function MegaMenu({ onNavigate }: MegaMenuProps) {
   if (!section) return null;
   const PanelIcon = section.panel.icon;
 
-  const currentIndex = MEGA_MENU_SECTIONS.findIndex((s) => s.key === activeKey);
+  const currentIndex = sections.findIndex((s) => s.key === activeKey);
   const direction = currentIndex >= prevIndexRef.current ? 1 : -1;
   prevIndexRef.current = currentIndex;
 
@@ -380,7 +418,7 @@ function MegaMenu({ onNavigate }: MegaMenuProps) {
     <div className="mega-menu__perspective">
       <div className="mega-menu">
         <div className="mega-menu__tabs" role="tablist" aria-label="Explore sections">
-          {MEGA_MENU_SECTIONS.map((s) => (
+          {sections.map((s) => (
             <button
               key={s.key}
               type="button"
@@ -425,6 +463,14 @@ function MegaMenu({ onNavigate }: MegaMenuProps) {
                             onClick={() => {
                               if (hoverTimer.current) clearTimeout(hoverTimer.current);
                               setSelectedLink(link);
+                              // Navigate on the first click — hover already shows the
+                              // preview panel, so requiring a second click on the
+                              // panel's own "View" button just to follow the link was
+                              // confusing, not an intentional two-step confirmation.
+                              const tool = link.toolId ? aiTools.find((t) => t.id === link.toolId) : undefined;
+                              if (tool) navigate(`/tool/${tool.id}`);
+                              else link.action(navigate, dispatch);
+                              onNavigate();
                             }}
                           >
                             <span className="mega-menu__link-tile">

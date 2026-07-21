@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import {
   Brain, Image, Code, BarChart3, Mic, Video, FileText, Search, Shield,
   Package, Activity, Users, ShieldCheck, ArrowRight, Star, Building2,
   Landmark, HeartPulse, Factory, ShoppingCart, GraduationCap, Cpu,
+  TrendingUp, Flame,
   type LucideIcon,
 } from 'lucide-react';
 import SearchBar from '../../components/header/SearchBar';
@@ -56,6 +58,34 @@ const STATS = [
 
 const SUGGESTIONS = ['NexusGPT', 'Image Generation', 'Code Assistant', 'Data Analytics', 'Voice Cloning'];
 
+// Week-over-week growth shown per trending rank — there's no modeled
+// "weekly growth" field on AITool, so this is a display-layer signal for
+// *why* something is trending, deliberately descending by rank rather than
+// a real per-tool metric.
+const TRENDING_GROWTH = [48, 34, 27, 19, 12];
+
+// Mirrors the familiar Fiverr-style top-nav category chrome for visual
+// recognition, but this platform is deliberately a single-vertical AI
+// Services marketplace (blueprint §1.1) — "AI Services" is the only real,
+// distinct category here. The other 12 aren't built out as separate
+// taxonomies; clicking one explains the focus and routes into the real
+// AI Services catalog instead of being a dead link.
+const QUICK_TOPICS: { label: string; isAiServices?: boolean }[] = [
+  { label: 'Graphics & Design' },
+  { label: 'Programming & Tech' },
+  { label: 'Digital Marketing' },
+  { label: 'Video & Animation' },
+  { label: 'Writing & Translation' },
+  { label: 'Music & Audio' },
+  { label: 'Business' },
+  { label: 'Finance' },
+  { label: 'AI Services', isAiServices: true },
+  { label: 'Personal Growth' },
+  { label: 'Consulting' },
+  { label: 'Data' },
+  { label: 'Photography' },
+];
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
@@ -85,6 +115,13 @@ function Home() {
     dispatch(resetFilters());
     dispatch(toggleCategory(category));
     navigate('/browse');
+  };
+
+  const handleQuickTopicClick = (topic: (typeof QUICK_TOPICS)[number]) => {
+    if (!topic.isAiServices) {
+      toast('YAKKAY AI Market is a focused AI Services marketplace — here\'s our full AI Services catalog.', { icon: '✨' });
+    }
+    navigate('/categories');
   };
 
   return (
@@ -124,6 +161,24 @@ function Home() {
             Browse AI services by category <ArrowRight size={14} />
           </button>
         </motion.div>
+      </section>
+
+      {/* Fiverr-style quick-topics strip — see QUICK_TOPICS comment above for
+          why only "AI Services" is a real, distinct destination here. */}
+      <section className="home__topics-strip">
+        <div className="home__topics-strip-row">
+          <span className="home__topics-strip-label">Trending 🔥</span>
+          {QUICK_TOPICS.map((topic) => (
+            <button
+              key={topic.label}
+              type="button"
+              className={`home__topic-chip ${topic.isAiServices ? 'home__topic-chip--active' : ''}`}
+              onClick={() => handleQuickTopicClick(topic)}
+            >
+              {topic.label}
+            </button>
+          ))}
+        </div>
       </section>
 
       {/* Category quick-access strip (icon-tile row, directly under the hero) */}
@@ -241,7 +296,10 @@ function Home() {
         </div>
       </motion.section>
 
-      {/* Trending strip */}
+      {/* Trending strip — horizontal leaderboard-style carousel: oversized
+          rank numerals (gold/silver/bronze for the top 3), a flame badge on
+          #1, and a visible growth-% signal per card, so this actually reads
+          as "trending" instead of just being an arbitrarily ordered list. */}
       <motion.section
         className="home__section"
         variants={containerVariants}
@@ -250,21 +308,46 @@ function Home() {
         viewport={{ once: true, margin: '-80px' }}
       >
         <div className="home__section-header">
-          <h2>Trending This Week</h2>
+          <h2><Flame size={20} className="home__trending-title-flame" /> Trending This Week</h2>
+          <button type="button" className="home__section-link" onClick={() => navigate('/search?q=trending')}>
+            View all <ArrowRight size={14} />
+          </button>
         </div>
-        <div className="home__trending-row">
-          {trendingTools.map((tool, i) => (
-            <motion.div
-              key={tool.id}
-              className="home__trending-item"
-              variants={itemVariants}
-              onClick={() => navigate(`/tool/${tool.id}`)}
-            >
-              <span className="home__trending-rank">{i + 1}</span>
-              <span className="home__trending-name">{tool.name}</span>
-              <span className="home__trending-category">{tool.category}</span>
-            </motion.div>
-          ))}
+        <div className="home__trending-scroll">
+          {trendingTools.map((tool, i) => {
+            const ToolIcon = TOOL_ICONS[tool.icon] || Brain;
+            const growth = TRENDING_GROWTH[i] ?? 8;
+            return (
+              <motion.div
+                key={tool.id}
+                className="home__trending-card"
+                variants={itemVariants}
+                onClick={() => navigate(`/tool/${tool.id}`)}
+              >
+                {i === 0 && (
+                  <span className="home__trending-flame" title="#1 this week">
+                    <Flame size={12} fill="currentColor" /> #1
+                  </span>
+                )}
+                <span className={`home__trending-rank home__trending-rank--${i < 3 ? i + 1 : 'other'}`}>{i + 1}</span>
+                <div className="home__trending-card-icon" style={{ background: tool.gradient }}>
+                  <ToolIcon size={20} className="home__trending-card-icon-glyph" />
+                </div>
+                <div className="home__trending-card-body">
+                  <h3 className="home__trending-card-name">{tool.name}</h3>
+                  <span className="home__trending-card-category">{tool.category}</span>
+                  <div className="home__trending-card-footer">
+                    <span className="home__trending-card-rating">
+                      <Star size={11} fill="var(--warning)" stroke="var(--warning)" /> {tool.rating.toFixed(1)}
+                    </span>
+                    <span className="home__trending-card-growth">
+                      <TrendingUp size={11} /> +{growth}%
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </motion.section>
 

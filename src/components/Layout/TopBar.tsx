@@ -320,7 +320,7 @@ const TopBar: React.FC = () => {
     if (path === '/analytics') return 'Analytics';
     if (path === '/favorites') return 'Favorites';
     if (path === '/settings') return 'Settings';
-    return 'NexusAI';
+    return 'YAKKAY';
   };
 
   const handleSearchChange = (val: string) => {
